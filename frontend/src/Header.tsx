@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { ethers } from "ethers";
+import React from "react";
 
 const Header = ({ connected, account, network, error, connectWallet, disconnectWallet, walletBalance }) => {
 	const slicedWalletAddress = ()=> {

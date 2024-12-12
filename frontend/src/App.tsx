@@ -5,13 +5,11 @@ import { ethers } from 'ethers';
 import {useState, useEffect} from 'react';
 import './index.css';
 import LotteryStatus from './Lottery.tsx';
-import WalletConnect from './Header.tsx';
 
 const supportedChains: ethers.Network[] = [
     new ethers.Network('sepolia', 11155111),
 ];
 
-const CONTRACT_ADDRESS = "0x5908C0CD77e0FA105565a2BAF5c0F0C4ba60e978";
 const ALCHEMY_RPC_URL = process.env.REACT_APP_ALCHEMY_PRC_URL;
 
 function App() {
@@ -26,7 +24,7 @@ function App() {
     }
 
     const connectWallet = async () => {
-        if (typeof window.ethereum == undefined) {
+        if (typeof window.ethereum === undefined) {
             setWalletError("MetaMask is not installed. Please install it to use this feature.");
             console.log(walletError);
             return;
@@ -37,7 +35,7 @@ function App() {
                 method: "eth_requestAccounts",
             });
 
-            if (accounts.length == 0) {
+            if (accounts.length === 0) {
                 localStorage.setItem('walletConnected', 'false');
                 return;
             }
@@ -70,7 +68,7 @@ function App() {
             localStorage.setItem('walletConnected', 'false');
         }
 
-        return localStorage.getItem('walletConnected') == 'true' ? true : false;
+        return localStorage.getItem('walletConnected') === 'true' ? true : false;
     }
 
     useEffect(() => {

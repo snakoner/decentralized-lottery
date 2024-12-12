@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import './index.css';
-import { bigint } from "hardhat/internal/core/params/argumentTypes";
+// import { bigint } from "hardhat/internal/core/params/argumentTypes";
 
 const ALCHEMY_RPC_URL = process.env.REACT_APP_ALCHEMY_PRC_URL;
 const CONTRACT_ADDRESS = "0x5908C0CD77e0FA105565a2BAF5c0F0C4ba60e978";
@@ -25,7 +25,12 @@ const Spinner = () => {
     );
 };
 
-const LotteryStatus = ({connected, account}) => {
+interface LotteryProps {
+    connected: boolean;
+    account: string;
+}
+
+const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const [ticketPriceWei, setTicketPriceWei] = useState<bigint>(0);
     const [ticketPrice, setTicketPrice] = useState<string>(""); 
     const [participants, setParticipants] = useState<number>(0);
@@ -46,6 +51,7 @@ const LotteryStatus = ({connected, account}) => {
         "function ticketPrice() public view returns (uint)",
         "function round() public view returns (uint)",        
         "function bid(uint amount) external payable",
+        "function withdraw(address payable _to) external",
     ];
 
     const browserProvider = new ethers.BrowserProvider(window.ethereum);
@@ -83,10 +89,10 @@ const LotteryStatus = ({connected, account}) => {
         setTicketPrice(ethers.formatEther(num) + " ETH");
     }
 
-    const getRound = async() => {
-        const num: bigint = await contractRpc.round();
-        return num;
-    }
+    // const getRound = async() => {
+    //     const num: bigint = await contractRpc.round();
+    //     return num;
+    // }
 
     const getTicketsByUser = async() => {
         // let _account;
@@ -101,33 +107,56 @@ const LotteryStatus = ({connected, account}) => {
     const getBalanceToWithdraw = async() => {
         if (account !== null) {
             const num: bigint = await contractRpc.getUnlockedBalance(account);
-            setUnlockedBalance(Number(num));
+            setUnlockedBalance(ethers.formatUnits(num));
         }
     }
 
-    const postBuyTicket = async(fromAddress: string, ticketNum: number) => {
-        try {
-            console.log(JSON.stringify({
-                fromAddress: fromAddress,
-                ticketNum: ticketNum,
-            }));
-            const response = await fetch("http://0.0.0.0:8000/bid", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },     
-                body: JSON.stringify({
-                    fromAddress: fromAddress,
-                    ticketNum: ticketNum,
-                }),
-            });
+    // const postBuyTicket = async(fromAddress: string, ticketNum: number) => {
+    //     try {
+    //         console.log(JSON.stringify({
+    //             fromAddress: fromAddress,
+    //             ticketNum: ticketNum,
+    //         }));
+    //         const response = await fetch("http://0.0.0.0:8000/bid", {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },     
+    //             body: JSON.stringify({
+    //                 fromAddress: fromAddress,
+    //                 ticketNum: ticketNum,
+    //             }),
+    //         });
             
-            // const data = await response.json();
-            console.log('transaction sent');
+    //         // const data = await response.json();
+    //         console.log('transaction sent');
+    //     } catch(error) {
+    //         console.log(error);
+    //     }
+    // };
+
+    const withdraw = async() => {
+        if (!connected) {
+            openModal();
+            return;
+        }
+
+        if (Number(unlockedBalance) === 0) {
+            console.log("zero balance to withdraw");
+            return;
+        }
+
+        const signer = await browserProvider.getSigner();
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
+        
+        try {
+            const tx = await contract.withdraw(account);
+            await tx.wait();
+            getBalanceToWithdraw();
         } catch(error) {
             console.log(error);
         }
-    };
+    }
 
     const buyTicket = async() => {
         if (!connected) {
@@ -151,7 +180,7 @@ const LotteryStatus = ({connected, account}) => {
         };
 
         console.log(txParams);
-        postBuyTicket(account, ticketNumber);
+        // postBuyTicket(account, ticketNumber);
         const signer = await browserProvider.getSigner();
         const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
         try {
@@ -183,7 +212,7 @@ const LotteryStatus = ({connected, account}) => {
         getTicketsByUser();
         getBalanceToWithdraw();
 
-        const timerSpinner = setTimeout(() => {}, 3000); // 3 секунды    
+        // const timerSpinner = setTimeout(() => {}, 3000); // 3 секунды    
 
         const timer = setInterval(() => {
             setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
@@ -215,6 +244,9 @@ const LotteryStatus = ({connected, account}) => {
                 <div className="lottery-info">
                     <p>⏳ <strong>Available value:</strong> {unlockedBalance}</p>
                 </div>
+                <button className="lottery-button" onClick={withdraw}>
+                    Withdraw
+                </button>
             </div>
         </div>        
     );
