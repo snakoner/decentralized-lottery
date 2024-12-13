@@ -5,12 +5,12 @@ interface IDecentralizerLottery {
     /**
      * @dev Emitted when account buys one ticket
      */
-    event Bid(address indexed account, uint amount, uint timestamp, uint round);
+    event Bid(address indexed account, uint amount, uint timestamp, uint indexed round);
 
     /**
      * @dev Emitted when owner picked winner
      */
-    event WinnerSelected(address indexed account, uint amount, uint round);
+    event WinnerSelected(address indexed account, uint amount, uint indexed round);
 
     /**
      * @dev Emitted when owner picked winner
