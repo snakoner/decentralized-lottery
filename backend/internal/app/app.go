@@ -48,8 +48,8 @@ func New(config *config.Config, logger *logrus.Logger) (*App, error) {
 }
 
 func (a *App) setRoutes() {
-	a.router.HandleFunc("/bid", a.ethSrv.BidHandler).Methods("POST")
 	a.router.HandleFunc("/round/{number}", a.ethSrv.RoundHandler).Methods("GET")
+	a.router.HandleFunc("/winner/{number}", a.ethSrv.WinnerHandler).Methods("GET")
 }
 
 func (a *App) Run(ctx context.Context) error {

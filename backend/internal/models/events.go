@@ -10,3 +10,14 @@ type BidEvent struct {
 type BidEvents struct {
 	Events []*BidEvent `json:"events"`
 }
+
+type WinnerSelectedEvent struct {
+	Account       string `json:"account"`
+	Amount        int64  `json:"amount"`
+	Round         int64  `json:"round"`
+	RoundFinished bool   `json:"round-finished"`
+}
+
+type WinnerSelectedResponse struct {
+	Winner WinnerSelectedEvent `json:"winner"`
+}
