@@ -3,7 +3,6 @@ package eth
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"math/big"
 	"net/http"
 	"strconv"
@@ -74,8 +73,6 @@ func (e *EthereumServer) RoundHandler(w http.ResponseWriter, r *http.Request) {
 		setHttpError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Println(string(b))
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(b)
