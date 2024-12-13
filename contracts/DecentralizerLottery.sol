@@ -13,7 +13,7 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
     uint public totalBid;
     uint immutable public ticketPrice;
     uint immutable public ownerFee;
-    uint participantsNum;   // in current round
+    uint public participantsNum;   // in current round
     address[] public participants;
     mapping (address => uint) public balances;  // account => balance to withdraw
     mapping (address => mapping(uint => uint)) ticketNum; // account => (round => ticketNum);

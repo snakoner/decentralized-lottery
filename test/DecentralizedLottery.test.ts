@@ -59,12 +59,13 @@ describe("DecentralizedLottery contract", function() {
 		const owner = (await ethers.getSigners())[0];
 		const parts = (await ethers.getSigners()).slice(1, 10);
 
+		console.log(ethers.formatUnits(await ethers.provider.getBalance(owner.address)));
         const Factory = await ethers.getContractFactory("DecentralizedLottery");
         const contract = await Factory.deploy(
 			_ownerCommission, 
 			_duration,
 			_ticketPrice);
-        
+
 		await contract.waitForDeployment();
 
         return {contract, owner, parts};
@@ -110,13 +111,15 @@ describe("DecentralizedLottery contract", function() {
 			expect(value).to.be.eq(addedAddressed.get(key))
 		})
 
-		expect(await contract.timeLeft()).not.to.be.eq(0)
+		expect(await contract.getTimeLeft()).not.to.be.eq(0)
 
 		// 26 hours
 		await ethers.provider.send("evm_increaseTime", [60 * 60 * 26]);
 		await ethers.provider.send("evm_mine")
 
-		expect(await contract.timeLeft()).to.be.eq(0)
+		console.log("participants: ", await contract.participantsNum());
+
+		expect(await contract.getTimeLeft()).to.be.eq(0)
 
 		const tx = await contract.start()
 		await tx.wait()
