@@ -143,11 +143,11 @@ func (e *EthereumServer) start() error {
 	return nil
 }
 
-func (e *EthereumServer) StopLottery(ctx context.Context) {
+func (e *EthereumServer) SelectWinner(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			e.logger.Info("stop StopLottery() function")
+			e.logger.Info("stop SelectWinner() function")
 			return
 		case <-time.After(time.Second * 10):
 			timeLeft, err := e.getTimeLeft()

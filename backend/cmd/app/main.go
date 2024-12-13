@@ -41,7 +41,6 @@ func main() {
 
 	go func() {
 		<-c
-		logger.Info("Got interrupt signal")
 		cancel()
 	}()
 

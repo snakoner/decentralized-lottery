@@ -54,17 +54,20 @@ func (a *App) setRoutes() {
 
 func (a *App) Run(ctx context.Context) error {
 	go func() {
+		a.logger.Info("start http server")
 		if err := a.server.ListenAndServe(); err != nil {
 			a.logger.Error(err)
 		}
 	}()
 
 	go func() {
+		a.logger.Info("start SubscribeBidEvent()")
 		a.ethSrv.SubscribeBidEvent(ctx)
 	}()
 
 	go func() {
-		a.ethSrv.StopLottery(ctx)
+		a.logger.Info("start SelectWinner()")
+		a.ethSrv.SelectWinner(ctx)
 	}()
 
 	<-ctx.Done()
