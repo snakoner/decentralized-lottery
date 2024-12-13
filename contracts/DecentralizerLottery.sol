@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -13,6 +13,7 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
     uint public totalBid;
     uint immutable public ticketPrice;
     uint immutable public ownerFee;
+    uint participantsNum;   // in current round
     address[] public participants;
     mapping (address => uint) public balances;  // account => balance to withdraw
     mapping (address => mapping(uint => uint)) ticketNum; // account => (round => ticketNum);
@@ -31,17 +32,33 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
         endTime = block.timestamp + _duration;
     }
 
-    function bid(uint amount) external payable {
-        require(amount * ticketPrice <= msg.value, "not enough ether to buy tickets");
-        require(block.timestamp < endTime, "lottery already finished");
+    modifier enoughEthersSent(uint amount) {
+        require(msg.value >= amount * ticketPrice, "not enough ether");
+        _;
+    }
 
+    modifier lotteryNotFinished() {
+        require(block.timestamp < endTime, "lottery already finished");
+        _;
+    }
+
+    modifier lotteryFinished() {
+        require(block.timestamp >= endTime, "lottery not finished");
+        _;
+    }
+
+    function bid(uint amount) external payable enoughEthersSent(amount) lotteryNotFinished {
         uint refund = msg.value - amount * ticketPrice;
-        if (msg.value - amount * ticketPrice > 0) {
-            balances[msg.sender] += refund;
+        if (refund > 0) {
+            payable(msg.sender).transfer(refund);
         }
 
         for (uint i = 0; i < amount; i++) {
             participants.push(msg.sender);
+        }
+
+        if (ticketNum[msg.sender][round] == 0) {
+            participantsNum++;
         }
 
         ticketNum[msg.sender][round] += amount;
@@ -50,8 +67,9 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
         emit Bid(msg.sender, amount, block.timestamp, round);
     }
 
-    function restartEmpty(uint newDuration) external onlyOwner {
+    function restartEmpty(uint newDuration) external onlyOwner lotteryFinished {
         require(participants.length == 0, "have participants");
+    
         duration = newDuration != 0 ? newDuration : duration;
         endTime = block.timestamp + duration;
     }
@@ -61,8 +79,7 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
         return uint(keccak256(abi.encodePacked(block.prevrandao, block.timestamp)));
     }
 
-    function start() external onlyOwner {
-        require(block.timestamp >= endTime, "lottery timeout is not over");
+    function start() external onlyOwner lotteryFinished {
         require(participants.length > 0, "not enough participants");
 
         uint winnerIdx = generateRandom() % participants.length;
@@ -97,10 +114,6 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
 
     function getUnlockedBalance(address account) external view returns (uint) {
         return balances[account];
-    }
-
-    function getParticipantsNum() external view returns (uint) {
-        return participants.length;
     }
 
     function getTimeLeft() external view returns (uint) {
