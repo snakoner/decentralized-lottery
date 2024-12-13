@@ -1,2 +1,38 @@
+# Node.js-related
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
 .env
+
+# Logs
+logs/
+*.log
+logs/**/*
+
+# OS-specific files
+.DS_Store
+
+# IDE-specific files
+.idea/
+*.iml
+
+# Build and cache directories
+artifacts/
+cache/
+dist/
+
+# Typechain-generated files
+typechain-types/
+
+# Test files
+test/.DS_Store
+
+# Hardhat-specific
+solidity-files-cache.json
+
+# Other
+coverage/
+*.tsbuildinfo
