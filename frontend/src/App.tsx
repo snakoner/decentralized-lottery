@@ -20,7 +20,7 @@ function App() {
     const [connected, setConnected] = useState<boolean>(false);
 
     const walletBalanceFormat = (balance: bigint) => {
-        return ethers.formatUnits(balance).slice(0, 6) + " ETH";        
+        return ethers.formatUnits(balance).slice(0, 6);        
     }
 
     const connectWallet = async () => {

@@ -1,10 +1,11 @@
 import React, {useState} from "react";
 import copyLogo from "./assets/copy.svg";
 import etherscanLogo from "./assets/etherscan.svg";
+import ethLogo from "./assets/eth.png";
 
 import "./Header.css";
 
-const Modal = ({ account, isOpen, onClose, onDisconnect }) => {
+const Modal = ({ account, walletBalance, isOpen, onClose, onDisconnect }) => {
 	if (!isOpen) 
 		return null;
   
@@ -40,6 +41,14 @@ const Modal = ({ account, isOpen, onClose, onDisconnect }) => {
 			</div>
 			<div className='modal-wallet-address'>
 				<p id='wallet-address'>{account}</p>
+			</div>
+			<div className='modal-wallet-balance'>
+				<p id='wallet-balance'><strong>Balance:</strong> {walletBalance}</p>
+				<div className="modal-wallet-balance-eth-logo" 
+					style={{
+							backgroundImage: `url(${ethLogo})`
+					}}
+				></div>
 			</div>
 			<div className='modal-wallet-copy-show'>
 				<div onClick={copyWalletAddress}>
@@ -118,7 +127,7 @@ const Header = ({ connected, account, network, error, connectWallet, disconnectW
           ) : 
 		  ( 
 		  	<div>
-				<Modal account={account} isOpen={modalIsOpen} onClose={hideWalletInfo} onDisconnect={disconnectWalletWrapper}></Modal>
+				<Modal account={account} walletBalance={walletBalance} isOpen={modalIsOpen} onClose={hideWalletInfo} onDisconnect={disconnectWalletWrapper}></Modal>
 				<div>
 					<button style={styles.button} onClick={showWalletInfo}>
 						{slicedWalletAddress(account)}

@@ -222,3 +222,30 @@
     cursor: pointer;
     opacity: 0.8;
 }
+
+.modal-wallet-balance {
+    width: 90%;
+    height: 40px;
+    /* background-color: rgb(185, 185, 185); */
+    position: relative;
+    margin: 0 auto;
+    margin-top: 10px;    
+    text-align: left;
+    display: inline-block;
+}
+
+.modal-wallet-balance p {
+    padding-left: 5px;
+    color: black;
+    float: left;
+}
+
+.modal-wallet-balance-eth-logo {
+    width: 18px;
+    height: 18px;
+    float: left;
+    background-size: cover;  /* Изображение будет масштабироваться, чтобы покрыть весь div */
+    background-position: center;  /* Изображение будет центрироваться в контейнере */
+    background-repeat: no-repeat;  /* Изображение не будет повторяться */  
+    /* background-color: aqua; */
+}
