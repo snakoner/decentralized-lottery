@@ -2,7 +2,8 @@
     width: 80%;
     min-width: 960px;
     height: auto;
-    background-color: #126df1;
+    /* background-color: #126df1; */
+	background: linear-gradient(135deg, #6a11cb, #2575fc);
     border-radius: 10px;
     margin: 0 auto;
     margin-top: 20px;
@@ -77,10 +78,17 @@
 .lottery-welcome-statistics-info {
     width: 48%;
     height: 100%;
-    background-color: rgb(21, 17, 255);
+    background-color: rgb(255, 255, 255);
     border-radius: 10px;
     float: left;
     display: inline-block;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;  
+}
+
+.lottery-welcome-statistics-info:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    transform: translateY(-5px);  
 }
 
 .lottery-welcome-statistics-info-logo {
@@ -106,7 +114,7 @@
 }
 
 .lottery-welcome-statistics-info-text p{
-    color: white;
+    color: black;
     font-size: 20px;
     font-weight: 700;
     padding-top: 10px;
@@ -115,15 +123,14 @@
 .lottery-welcome-statistics-info-total-reward {
     width: 60%;
     height: 30px;
-    /* background-color: #a3a3a3; */
     float: right;
     text-align: left;
     margin-top: 5px;
 }
 
 .lottery-welcome-statistics-info-total-reward p{
-    color: white;
-    font-size: 16px;
+    color: black;
+    font-size: 18px;
     padding-top: 10px;
 }
 
@@ -141,6 +148,6 @@
 .lottery-welcome-statistics-info-text-powered p {
     padding-top: 26px;
     font-size: 1.2em;
-    color: white;
+    color: black;
     font-weight: 600;
 }

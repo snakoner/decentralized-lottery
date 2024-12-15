@@ -14,16 +14,19 @@ const LotteryInfo = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },     
-                // body: JSON.stringify({}),
             });
             
             const data = await response.json();
-            setAllTimeReward(data['reward']);
+            setAllTimeReward(data['reward'].slice(0, 7));
         } catch(error) {
             console.log(error);
         }
 
     }
+
+    useState(() => {
+        getAllTimeReward();
+    }, []);
 
     return (
         <div class="lottery-welcome">
@@ -45,7 +48,7 @@ const LotteryInfo = () => {
                             <p>All time reward:</p>
                         </div>
                         <div className="lottery-welcome-statistics-info-total-reward">
-                            <p>{allTimeReward}</p>
+                            <p>{allTimeReward} ETH</p>
                         </div>
                     </div>
                     <div className="lottery-welcome-statistics-info" style={{float:"right"}}>
