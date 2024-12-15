@@ -6,6 +6,7 @@ import ethereumLogo from "./assets/eth.png";
 import { float } from "hardhat/internal/core/params/argumentTypes";
 
 const LotteryInfo = () => {
+    const [allTimeReward, setAllTimeReward] = useState<string|null>(null);
     const getAllTimeReward = async() => {
         try {
             const response = await fetch("http://0.0.0.0:8000/all-time-reward", {
@@ -17,7 +18,7 @@ const LotteryInfo = () => {
             });
             
             const data = await response.json();
-            // console.log('transaction sent');
+            setAllTimeReward(data['reward']);
         } catch(error) {
             console.log(error);
         }
@@ -44,10 +45,9 @@ const LotteryInfo = () => {
                             <p>All time reward:</p>
                         </div>
                         <div className="lottery-welcome-statistics-info-total-reward">
-                            <p>0.0001 ETH</p>
+                            <p>{allTimeReward}</p>
                         </div>
                     </div>
-
                     <div className="lottery-welcome-statistics-info" style={{float:"right"}}>
                         <div className="lottery-welcome-statistics-info-logo" style={{
 							backgroundImage: `url(${ethereumLogo})`
