@@ -52,11 +52,76 @@
     align-items: flex-end;
 }
 
+
 .button {
     padding: 10px 15px;
     font-size: 1rem;
     background-color: #1263f1;
     color: #ffffff;
+}
+
+.modal-wallet-copy p {
+    padding-top: 12px;
+    padding-left: 10px;
+    color: black;
+    font-size: 16px;
+}
+
+.modal-wallet-show {
+    width: 48%;
+    height: 40px;
+    position: relative;
+    border-radius: 10px;
+    background-color: rgb(235, 235, 235);
+    margin: 0 auto;
+    text-align: left;
+    float: right;
+}
+
+.modal-wallet-show:hover {
+    opacity: 0.8;
+}
+
+.modal-wallet-show p {
+    padding-top: 10px;
+    padding-left: 10px;
+    color: black;
+}
+
+.modal-wallet-info-area {
+    width: 48%;
+    height: 20px;
+    position: relative;
+    text-align: left;
+    margin-left: 40px;
+}
+
+.modal-wallet-info-area p {
+    padding-top: 3px;
+    padding-left: 0px;
+    font-size: 14px;
+    color: rgb(197, 197, 197);
+}
+
+.modal-disconnect-wallet {
+    width: 90%;
+    height: 40px;
+    position: relative;
+    border-radius: 10px;
+    margin: 0 auto;
+    margin-top: 30px;
+    text-align: left;
+    margin-top: 10px;
+    text-align: center;
+}
+
+.modal-disconnect-wallet button {
+    width: 50%;
+    height: 100%;
+    font-size: 20px;
+    background-color: rgb(255, 15, 15);
+    border-radius: 10px;
+
     border: none;
     border-radius: 5px;
     cursor: pointer;
