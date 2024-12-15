@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import './index.css';
 // import { bigint } from "hardhat/internal/core/params/argumentTypes";
-import WinnersList from "./WinnersList.tsx";
 import ParticipantsList from "./ParticipantsList.tsx";
 
 const ALCHEMY_RPC_URL = `https://eth-sepolia.g.alchemy.com/v2/QtPw5bLONCtW00agVEhE66pb1Vsv9RnC`;
@@ -270,7 +269,6 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
             </div>
             {/* Add the new lists */}
             <ParticipantsList />
-            <WinnersList />
         </div>        
     );
 };

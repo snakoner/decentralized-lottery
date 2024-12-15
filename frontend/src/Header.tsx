@@ -11,9 +11,11 @@ interface HeaderProps {
     connectWallet: () => void;
     disconnectWallet: () => void;
     walletBalance: string;
+    onHomeClick: () => void; // Prop for navigating to Home
+    onHistoryClick: () => void; // Prop for navigating to History
 }
 
-const Header: React.FC<HeaderProps> = ({ connected, account, network, error, connectWallet, disconnectWallet, walletBalance }) => {
+const Header: React.FC<HeaderProps> = ({ connected, account, network, error, connectWallet, disconnectWallet, walletBalance, onHomeClick, onHistoryClick }) => {
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
 
     const slicedWalletAddress = () => {
@@ -42,13 +44,15 @@ const Header: React.FC<HeaderProps> = ({ connected, account, network, error, con
     return (
         <header className="header">
             {/* Left section: Logo */}
-            <div className="left-section">
+            <div className="left-section" onClick={onHomeClick} style={{cursor: "pointer"}}>
                 <h1 className="logo">🎲 Lottery DApp</h1>
             </div>
 
             {/* Center section: Tabs */}
             <nav className="center-section">
-                <button className="tab-button">History</button>
+                <button className="tab-button" onClick={onHistoryClick}>
+                    History
+                </button>
                 <button className="tab-button">About</button>
             </nav>
 

@@ -6,6 +6,7 @@ import {useState, useEffect} from 'react';
 import './index.css';
 import LotteryStatus from './Lottery.tsx';
 import LotteryInfo from './LotteryInfo.tsx';
+import WinnersList from './WinnersList.tsx';
 
 const supportedChains: ethers.Network[] = [
     new ethers.Network('sepolia', 11155111),
@@ -19,6 +20,9 @@ function App() {
     const [walletError, setWalletError] = useState<string|null>(null);
     const [walletBalance, setWalletBalance] = useState<string|null>(null);
     const [connected, setConnected] = useState<boolean>(false);
+
+    // New state to manage views
+    const [view, setView] = useState<'home' | 'history'>('home');
 
     const walletBalanceFormat = (balance: bigint) => {
         return ethers.formatUnits(balance).slice(0, 6);        
@@ -79,19 +83,31 @@ function App() {
         }
     }, []);
 
+    // Handlers for switching views
+    const handleHomeClick = () => setView('home'); // Navigate to Home
+    const handleHistoryClick = () => setView('history'); // Navigate to History
+
+
     return (
         <div className="App">
             <Header
                 connected={connected}
-                account={account} 
-                network={network} 
-                error={walletError} 
+                account={account}
+                network={network}
+                error={walletError}
                 connectWallet={connectWallet}
                 disconnectWallet={disconnectWallet}
                 walletBalance={walletBalance}
-            ></Header>
-            <LotteryInfo></LotteryInfo>
-            <LotteryStatus connected={connected} account={account}></LotteryStatus>
+                onHomeClick={handleHomeClick} // Pass navigation handlers to Header
+                onHistoryClick={handleHistoryClick}
+            />
+            {view === 'home' && (
+                <>
+                    <LotteryInfo />
+                    <LotteryStatus connected={connected} account={account} />
+                </>
+            )}
+            {view === 'history' && <WinnersList />}
         </div>
     );
 }
