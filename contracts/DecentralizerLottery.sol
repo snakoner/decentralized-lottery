@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol"; // Provides ownership functionality to restrict certain actions to the owner.
-import "./IDecentralizedLottery.sol"; // Interface for the lottery contract.
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./IDecentralizedLottery.sol";
 
 /**
  * @title DecentralizedLottery
@@ -38,13 +38,13 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
         uint _duration, 
         uint _ticketPrice
     ) Ownable(msg.sender) {
-        require(_ownerFee <= MAX_OWNER_FEE, "illegal owner fee"); // Validate owner fee.
-        require(_duration >= MIN_DURATION, "bad duration"); // Validate duration.
+        require(_ownerFee <= MAX_OWNER_FEE, "illegal owner fee");
+        require(_duration >= MIN_DURATION, "bad duration");
 
         ownerFee = _ownerFee;
         ticketPrice = _ticketPrice;
         duration = _duration;
-        endTime = block.timestamp + _duration; // Initialize the end time for the first round.
+        endTime = block.timestamp + _duration;
     }
 
     // Modifiers
@@ -73,23 +73,23 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
         enoughEthersSent(amount) 
         lotteryNotFinished 
     {
-        uint refund = msg.value - amount * ticketPrice; // Calculate overpayment to refund.
+        uint refund = msg.value - amount * ticketPrice;
         if (refund > 0) {
-            payable(msg.sender).transfer(refund); // Refund excess ETH.
+            payable(msg.sender).transfer(refund);
         }
 
         for (uint i = 0; i < amount; i++) {
-            participants.push(msg.sender); // Add the participant to the list for each ticket.
+            participants.push(msg.sender);
         }
 
         if (ticketNum[msg.sender][round] == 0) {
-            participantsNum++; // Increment unique participant count.
+            participantsNum++;
         }
 
-        ticketNum[msg.sender][round] += amount; // Update the ticket count for the user in the current round.
-        totalBid += amount * ticketPrice; // Update the total bid amount.
+        ticketNum[msg.sender][round] += amount;
+        totalBid += amount * ticketPrice;
 
-        emit Bid(msg.sender, amount, block.timestamp, round); // Emit a Bid event.
+        emit Bid(msg.sender, amount, block.timestamp, round);
     }
 
     /**
@@ -101,10 +101,10 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
         onlyOwner 
         lotteryFinished 
     {
-        require(participants.length == 0, "have participants"); // Ensure there are no participants.
+        require(participants.length == 0, "have participants");
 
-        duration = newDuration != 0 ? newDuration : duration; // Update duration if provided.
-        endTime = block.timestamp + duration; // Set the end time for the new round.
+        duration = newDuration != 0 ? newDuration : duration;
+        endTime = block.timestamp + duration;
     }
 
     /**
@@ -119,22 +119,22 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
      * @dev Selects a winner, calculates rewards, and starts a new lottery round.
      */
     function start() external onlyOwner lotteryFinished {
-        require(participants.length > 0, "not enough participants"); // Ensure there are participants.
+        require(participants.length > 0, "not enough participants"); 
 
-        uint winnerIdx = generateRandom() % participants.length; // Determine the winner index.
-        address winner = participants[winnerIdx]; // Get the winner's address.
-        uint fee = (totalBid * ownerFee) / 100; // Calculate the owner's fee.
-        uint reward = totalBid - fee; // Calculate the winner's reward.
+        uint winnerIdx = generateRandom() % participants.length; 
+        address winner = participants[winnerIdx];
+        uint fee = (totalBid * ownerFee) / 100;
+        uint reward = totalBid - fee;
         
-        balances[owner()] += fee; // Add the fee to the owner's balance.
-        balances[winner] += reward; // Add the reward to the winner's balance.
-        totalBid = 0; // Reset the total bid amount.
+        balances[owner()] += fee;
+        balances[winner] += reward;
+        totalBid = 0;
 
-        emit WinnerSelected(winner, reward, round); // Emit a WinnerSelected event.
+        emit WinnerSelected(winner, reward, round);
 
-        round++; // Increment the round number.
-        endTime = block.timestamp + duration; // Set the end time for the next round.
-        delete participants; // Reset the participants list.
+        round++;
+        endTime = block.timestamp + duration;
+        delete participants;
     }
 
     /**
@@ -142,13 +142,13 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
      * @param _to Address to send the withdrawn balance.
      */
     function withdraw(address payable _to) external {
-        require(balances[msg.sender] > 0, "nothing to withdraw"); // Ensure the user has a balance.
-        uint value = balances[msg.sender]; // Get the withdrawable balance.
+        require(balances[msg.sender] > 0, "nothing to withdraw");
+        uint value = balances[msg.sender];
 
-        balances[msg.sender] = 0; // Reset the user's balance.
-        _to.transfer(value); // Transfer the balance.
+        balances[msg.sender] = 0;
+        _to.transfer(value);
 
-        emit Withdraw(msg.sender, _to, value); // Emit a Withdraw event.
+        emit Withdraw(msg.sender, _to, value);
     }
 
     /**
@@ -178,6 +178,6 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
             return 0;
         }
 
-        return endTime - block.timestamp; // Calculate the time left.
+        return endTime - block.timestamp;
     }
 }
