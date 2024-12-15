@@ -177,11 +177,12 @@
     height: 20px;
     position: relative;
     text-align: left;
+    margin-left: 40px;
 }
 
 .modal-wallet-info-area p {
     padding-top: 3px;
-    padding-left: 30px;
+    padding-left: 0px;
     font-size: 14px;
     color: rgb(197, 197, 197);
 }
