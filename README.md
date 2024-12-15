@@ -35,3 +35,6 @@ Before running this project, ensure you have the following installed:
 ```bash
 git clone https://github.com/snakoner/decentralized-lottery.git
 cd decentralized-lottery
+make build
+make up
+```
