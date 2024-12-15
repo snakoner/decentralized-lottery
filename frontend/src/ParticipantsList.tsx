@@ -1,4 +1,6 @@
+
 import React, { useEffect, useState, useMemo } from 'react';
+import Modal from "./Modal.tsx"; // Added: Import the Modal component
 import { ethers } from 'ethers';
 
 const contractABI = [
@@ -13,6 +15,8 @@ const contractAddress = "0xE8f0b7144F2be28FE6Af69f15658d7b197Bf9f11";
 
 const ParticipantsList: React.FC = () => {
     const [participants, setParticipants] = useState<{ address: string; bid: number }[]>([]);
+    const [modalIsOpen, setModalIsOpen] = useState<boolean>(false); // Added: State for modal visibility
+    const [selectedParticipant, setSelectedParticipant] = useState<{ address: string; bid: number } | null>(null); // Added: State to store selected participant
 
     const contract = useMemo(() => new ethers.Contract(contractAddress, contractABI, provider), []);
 
@@ -64,10 +68,17 @@ const ParticipantsList: React.FC = () => {
         return `${address.slice(0, 6)}...${address.slice(-4)}`.toLowerCase();
     };
 
-    const copyToClipboard = (address: string) => {
-        navigator.clipboard.writeText(address).then(() => {
-            alert(`Copied: ${address}`);
-        });
+    // Added: Function to show modal with participant details
+    const showParticipantInfo = (participant: { address: string; bid: number }) => {
+        console.log("Opening modal for participant:", participant);
+        setSelectedParticipant(participant);
+        setModalIsOpen(true);
+    };
+
+    // Added: Function to hide the modal
+    const hideParticipantInfo = () => {
+        setModalIsOpen(false);
+        setSelectedParticipant(null);
     };
 
     return (
@@ -75,11 +86,26 @@ const ParticipantsList: React.FC = () => {
             <h1 className="lottery-title">Current Participants</h1>
             <ul className="list">
                 {participants.map((participant, index) => (
-                    <li key={index} className="list-item" onClick={() => copyToClipboard(participant.address)}>
+                    <li
+                        key={index}
+                        className="list-item"
+                        onClick={() => showParticipantInfo(participant)} // Updated: Show modal on click
+                        style={{marginBottom: "8px", cursor: "pointer"}}
+                    >
                         {truncateAddress(participant.address)} - {participant.bid} ticket(s)
                     </li>
                 ))}
             </ul>
+            {/* Added: Modal for showing participant details */}
+            <Modal
+                account={selectedParticipant?.address || ""}
+                walletBalance={`${selectedParticipant?.bid || 0} Tickets`}
+                isOpen={modalIsOpen}
+                onClose={hideParticipantInfo}
+                onDisconnect={() => {}} // No disconnect functionality for participants
+                title="Participant Details" // Updated: Title for participants
+                showDisconnect={false} // Updated: Hide Disconnect button
+            />
         </div>
     );
 };
