@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import './index.css';
 // import { bigint } from "hardhat/internal/core/params/argumentTypes";
+import WinnersList from "./WinnersList.tsx";
+import ParticipantsList from "./ParticipantsList.tsx";
 
-const ALCHEMY_RPC_URL = process.env.REACT_APP_ALCHEMY_PRC_URL;
-const CONTRACT_ADDRESS = "0x5908C0CD77e0FA105565a2BAF5c0F0C4ba60e978";
+const ALCHEMY_RPC_URL = `https://eth-sepolia.g.alchemy.com/v2/QtPw5bLONCtW00agVEhE66pb1Vsv9RnC`;
+const CONTRACT_ADDRESS = "0xE8f0b7144F2be28FE6Af69f15658d7b197Bf9f11";
 
 const Modal = ({ isOpen, onClose }) => {
     if (!isOpen) return null; // Не отображаем, если окно закрыто
@@ -34,6 +36,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const [ticketPriceWei, setTicketPriceWei] = useState<bigint>(0);
     const [ticketPrice, setTicketPrice] = useState<string>(""); 
     const [participants, setParticipants] = useState<number>(0);
+    const [participantsList, setParticipantsList] = useState<string[]>([]); //ADDED
     const [timeLeft, setTimeLeft] = useState<number>(0);
     const [ticketNum, setTicketNum] = useState<number>(0);
     const [unlockedBalance, setUnlockedBalance] = useState<bigint>(0);
@@ -46,6 +49,8 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const contractABI = [
         "function getTimeLeft() external view returns (uint)",
         "function getParticipantsNum() external view returns (uint)",
+        //"function getParticipants() external view returns (address)",
+        "function participants(uint256) external view returns (address)",
         "function getUnlockedBalance(address account) external view returns (uint)",
         "function getTicketNum(address account) external view returns (uint)",
         "function ticketPrice() public view returns (uint)",
@@ -79,9 +84,26 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     }
 
     const getParticipantsNum = async() => {
+        console.log("beginning operation");
         const num: bigint = await contractRpc.getParticipantsNum();
+        console.log("Number received");
         setParticipants(Number(num));
+        // Fetch participants list
+        console.log("beginning that one operation");
+        const myAddress: string =  await contractRpc.participants(0);
+        const tempList: string[] = [myAddress];
+        console.log(myAddress);
+
+        // for (let i = 0; i < participants; i++) {
+        //     console.log("attempting to get a participant (retarded way)");
+        //     const participantAddr = await contractRpc.getParticipants(i);
+        //     console.log(participantAddr);
+        //     tempList.push(participantAddr);
+        // }
+        setParticipantsList(tempList);
     }
+
+
 
     const getTicketPrice = async() => {
         const num: bigint = await contractRpc.ticketPrice();
@@ -248,6 +270,9 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
                     Withdraw
                 </button>
             </div>
+            {/* Add the new lists */}
+            <ParticipantsList />
+            <WinnersList />
         </div>        
     );
 };

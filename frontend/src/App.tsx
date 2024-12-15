@@ -10,7 +10,7 @@ const supportedChains: ethers.Network[] = [
     new ethers.Network('sepolia', 11155111),
 ];
 
-const ALCHEMY_RPC_URL = process.env.REACT_APP_ALCHEMY_PRC_URL;
+const ALCHEMY_RPC_URL = `https://eth-sepolia.g.alchemy.com/v2/QtPw5bLONCtW00agVEhE66pb1Vsv9RnC`;
 
 function App() {
     const [account, setAccount] = useState<string|null>(null);
