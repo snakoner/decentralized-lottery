@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"os"
 	"os/signal"
 
@@ -11,10 +12,16 @@ import (
 )
 
 var (
-	configPath = "./config.json"
+	configPath string
 )
 
+func init() {
+	flag.StringVar(&configPath, "config-path", "config.json", "path to config file")
+}
+
 func main() {
+	flag.Parse()
+
 	logger := logrus.New()
 	config, err := config.New(configPath)
 	if err != nil {
