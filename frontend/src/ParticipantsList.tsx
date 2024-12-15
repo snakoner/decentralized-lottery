@@ -4,7 +4,7 @@ import { ethers } from 'ethers';
 const contractABI = [
     "function participants(uint256) external view returns (address)",
     "function getParticipantsNum() external view returns (uint)",
-    "event Bid(address indexed account, uint256 amount, uint256 timestamp, uint256 round)"
+    "event Bid(address indexed account, uint amount, uint timestamp, uint indexed round)"
 ];
 const provider = new ethers.JsonRpcProvider(
     `https://eth-sepolia.g.alchemy.com/v2/QtPw5bLONCtW00agVEhE66pb1Vsv9RnC`
@@ -43,30 +43,18 @@ const ParticipantsList: React.FC = () => {
     };
 
     useEffect(() => {
+
         fetchParticipants();
 
-        const handleBidEvent = (account: string, amount: ethers.BigNumber, timestamp: number, round: number) => {
-            console.log("Bid event detected:", { account, amount: amount.toString(), timestamp, round });
-
-            setParticipants((prevParticipants) => {
-                const existingParticipant = prevParticipants.find(
-                    (participant) => participant.address === account
-                );
-
-                if (existingParticipant) {
-                    return prevParticipants.map((participant) =>
-                        participant.address === account
-                            ? { ...participant, bid: participant.bid + amount.toNumber() }
-                            : participant
-                    );
-                } else {
-                    return [...prevParticipants, { address: account, bid: amount.toNumber() }];
-                }
-            });
+        const handleBidEvent = () => {
+            console.log("Bid event detected, refetching participants...");
+            fetchParticipants();
         };
 
+        // Set up the listener
         contract.on("Bid", handleBidEvent);
 
+        // Cleanup listener on component unmount
         return () => {
             contract.off("Bid", handleBidEvent);
         };
