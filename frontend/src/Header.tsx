@@ -150,6 +150,7 @@ const styles = {
     padding: "10px 20px",
     backgroundColor: "#282c34",
     color: "#ffffff",
+	height: "100px",
     borderBottom: "2px solid #444",
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
   },
