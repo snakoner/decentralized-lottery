@@ -234,8 +234,6 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
         getTicketsByUser();
         getBalanceToWithdraw();
 
-        // const timerSpinner = setTimeout(() => {}, 3000); // 3 секунды    
-
         const timer = setInterval(() => {
             setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
         }, 1000);
@@ -266,7 +264,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
                 <div className="lottery-info">
                     <p>⏳ <strong>Available value:</strong> {unlockedBalance}</p>
                 </div>
-                <button className="lottery-button" onClick={withdraw}>
+                <button id="withdraw-buttion" className="lottery-button" onClick={withdraw}>
                     Withdraw
                 </button>
             </div>

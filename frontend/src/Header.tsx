@@ -4,6 +4,7 @@ import etherscanLogo from "./assets/etherscan.svg";
 import ethLogo from "./assets/eth.png";
 
 import "./Header.css";
+import { float } from "hardhat/internal/core/params/argumentTypes";
 
 const Modal = ({ account, walletBalance, isOpen, onClose, onDisconnect }) => {
 	if (!isOpen) 
@@ -128,7 +129,7 @@ const Header = ({ connected, account, network, error, connectWallet, disconnectW
 		  ( 
 		  	<div>
 				<Modal account={account} walletBalance={walletBalance} isOpen={modalIsOpen} onClose={hideWalletInfo} onDisconnect={disconnectWalletWrapper}></Modal>
-				<div>
+				<div style={{display: "inline-block"}}>
 					<button style={styles.button} onClick={showWalletInfo}>
 						{slicedWalletAddress(account)}
 					</button>
@@ -205,13 +206,14 @@ const styles = {
   button: {
     padding: "10px 15px",
     fontSize: "1rem",
-    backgroundColor: "#4caf50",
+    backgroundColor: "#1263f1",
     color: "#ffffff",
     border: "none",
     borderRadius: "5px",
     cursor: "pointer",
     transition: "background-color 0.3s",
-  },
+	width: "180px",
+},
 
   disconnectButton: {
     padding: "5px 10px",

@@ -8,7 +8,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;  /* Поверх всех остальных элементов */
+    z-index: 1000;
   }
   
   .modal-content {
@@ -16,6 +16,7 @@
     padding: 20px;
     border-radius: 10px;
     width: 600px;
+    height: 380px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   }
 
@@ -66,7 +67,6 @@
 .modal-wallet-label {
     width: 90%;
     height: 40px;
-    /* background-color: rgb(185, 185, 185); */
     position: relative;
     margin: 0 auto;
     margin-top: 10px;    
@@ -84,7 +84,6 @@
     height: 40px;
     position: relative;
     border-radius: 10px;
-    /* border: 1px solid gray; */
     margin: 0 auto;
     text-align: left;
 }
@@ -101,8 +100,6 @@
     height: 40px;
     position: relative;
     border-radius: 10px;
-    /* border: 1px solid gray; */
-    /* background-color: aqua; */
     margin: 0 auto;
     text-align: left;
     display: inline-block;
@@ -115,7 +112,6 @@
     height: 40px;
     position: relative;
     border-radius: 10px;
-    /* border: 1px solid gray; */
     background-color: rgb(132, 188, 188);
     margin: 0 auto;
     text-align: left;
@@ -129,11 +125,10 @@
     margin-top: 5px;
     width: 30px;
     height: 30px;
-    /* background-image: url("./copy.svg"); */
     float: left;
-    background-size: cover;  /* Изображение будет масштабироваться, чтобы покрыть весь div */
-    background-position: center;  /* Изображение будет центрироваться в контейнере */
-    background-repeat: no-repeat;  /* Изображение не будет повторяться */  
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .modal-wallet-show-logo {
@@ -142,11 +137,10 @@
     margin-right: 5px;
     width: 20px;
     height: 20px;
-    /* background-image: url("./etherscan.svg"); */
     float: left;
-    background-size: cover;  /* Изображение будет масштабироваться, чтобы покрыть весь div */
-    background-position: center;  /* Изображение будет центрироваться в контейнере */
-    background-repeat: no-repeat;  /* Изображение не будет повторяться */  
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 
@@ -162,7 +156,6 @@
     height: 40px;
     position: relative;
     border-radius: 10px;
-    /* border: 1px solid gray; */
     background-color: rgb(235, 235, 235);
     margin: 0 auto;
     text-align: left;
@@ -183,7 +176,6 @@
     width: 48%;
     height: 20px;
     position: relative;
-    /* background-color: aqua; */
     text-align: left;
 }
 
@@ -202,9 +194,7 @@
     margin: 0 auto;
     margin-top: 30px;
     text-align: left;
-    /* display: inline-block; */
     margin-top: 10px;
-    /* background-color: aqua; */
     text-align: center;
 }
 
@@ -226,7 +216,6 @@
 .modal-wallet-balance {
     width: 90%;
     height: 40px;
-    /* background-color: rgb(185, 185, 185); */
     position: relative;
     margin: 0 auto;
     margin-top: 10px;    
@@ -244,8 +233,7 @@
     width: 18px;
     height: 18px;
     float: left;
-    background-size: cover;  /* Изображение будет масштабироваться, чтобы покрыть весь div */
-    background-position: center;  /* Изображение будет центрироваться в контейнере */
-    background-repeat: no-repeat;  /* Изображение не будет повторяться */  
-    /* background-color: aqua; */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }

@@ -61,7 +61,7 @@ const ParticipantsList: React.FC = () => {
     }, [contract]);
 
     const truncateAddress = (address: string) => {
-        return `${address.slice(0, 6)}...${address.slice(-4)}`;
+        return `${address.slice(0, 6)}...${address.slice(-4)}`.toLowerCase();
     };
 
     const copyToClipboard = (address: string) => {
