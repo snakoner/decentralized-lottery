@@ -1,0 +1,15 @@
+artifacts/
+build/
+cache/
+node_modules/
+ignition/
+typechain-types/
+backend/.env
+frontend/.env
+*/.DS_Store
+contracts/.DS_Store
+test/.DS_Store
+.env
+backend/app
+backend/internal/.DS_Store
+.DS_Store
