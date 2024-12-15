@@ -1,13 +1,100 @@
-import React from "react";
+import React, {useState} from "react";
+import copyLogo from "./assets/copy.svg";
+import etherscanLogo from "./assets/etherscan.svg";
+
+import "./Header.css";
+
+const Modal = ({ account, isOpen, onClose, onDisconnect }) => {
+	if (!isOpen) 
+		return null;
+  
+	const copyWalletAddress = async() => {
+		const walletAddress = document.getElementById('wallet-address')?.innerHTML;
+		console.log(walletAddress);
+
+		if (walletAddress) {
+			try {
+				await navigator.clipboard.writeText(walletAddress);
+				const info = document.getElementById('modal-wallet-info');
+				if (info) {
+					info.innerHTML = 'Copied';
+					setTimeout(()=>{
+						info.innerHTML = '';
+					}, 1000);
+				}
+
+			} catch (err) {
+				console.error('Error copying text: ', err);
+			}	
+		}
+	}
+
+	return (
+	  <div className="modal-overlay" onClick={onClose}>
+		<div className="modal-content" onClick={(e) => e.stopPropagation()}>
+			<div className="modal-close">
+				<button onClick={onClose}>✖</button>
+			</div>
+			<div className='modal-wallet-label'>
+				<p>Your wallet</p>
+			</div>
+			<div className='modal-wallet-address'>
+				<p id='wallet-address'>{account}</p>
+			</div>
+			<div className='modal-wallet-copy-show'>
+				<div onClick={copyWalletAddress}>
+					<div className='modal-wallet-copy'>
+						<div className='modal-wallet-copy-logo' style={{
+							backgroundImage: `url(${copyLogo})`
+						}}></div>
+						<p>Copy address</p>
+					</div>
+				</div>
+				<a href={`https://etherscan.io/address/${account}`} target="_blank">
+				<div className='modal-wallet-show'>
+					<div className='modal-wallet-show-logo' style={{
+							backgroundImage: `url(${etherscanLogo})`
+						}}></div>
+					<p>Show on Etherscan</p>
+				</div>
+				</a>
+			</div>
+			<div className='modal-wallet-info-area'>
+				<p id='modal-wallet-info'></p>
+			</div>
+			<div className='modal-disconnect-wallet'>
+				<button onClick={onDisconnect}>Disconnect wallet</button>
+			</div>
+		</div>
+	  </div>
+	);
+};
 
 const Header = ({ connected, account, network, error, connectWallet, disconnectWallet, walletBalance }) => {
-  const slicedWalletAddress = () => {
+	const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+	const slicedWalletAddress = () => {
     if (!account) {
       return "";
     }
 
     return account.slice(0, 6) + "..." + account.slice(-4);
   };
+
+  	const showWalletInfo = () => {
+		console.log("show ");
+		setModalIsOpen(true);
+	};
+
+	const hideWalletInfo = () => {
+		console.log("close");
+		setModalIsOpen(false);
+	}
+
+
+	const disconnectWalletWrapper = ()=> {
+		setModalIsOpen(false);
+		disconnectWallet();
+	};
 
   return (
       <header style={styles.header}>
@@ -28,22 +115,18 @@ const Header = ({ connected, account, network, error, connectWallet, disconnectW
               <button style={styles.button} onClick={connectWallet}>
                 Connect Wallet
               </button>
-          ) : (
-              <div>
-                <p style={styles.walletInfo}>
-                  <strong>Wallet:</strong> {slicedWalletAddress()}
-                </p>
-                <p style={styles.walletInfo}>
-                  <strong>Balance:</strong> {walletBalance || "N/A"} ETH
-                </p>
-                <p style={styles.walletInfo}>
-                  <strong>Network:</strong> {network || "Unknown"}
-                </p>
-                <button style={styles.disconnectButton} onClick={disconnectWallet}>
-                  Disconnect
-                </button>
-              </div>
-          )}
+          ) : 
+		  ( 
+		  	<div>
+				<Modal account={account} isOpen={modalIsOpen} onClose={hideWalletInfo} onDisconnect={disconnectWalletWrapper}></Modal>
+				<div>
+					<button style={styles.button} onClick={showWalletInfo}>
+						{slicedWalletAddress(account)}
+					</button>
+				</div>
+			</div>
+			)
+          }
         </div>
       </header>
   );
