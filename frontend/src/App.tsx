@@ -5,6 +5,7 @@ import { ethers } from 'ethers';
 import {useState, useEffect} from 'react';
 import './index.css';
 import LotteryStatus from './Lottery.tsx';
+import LotteryInfo from './LotteryInfo.tsx';
 
 const supportedChains: ethers.Network[] = [
     new ethers.Network('sepolia', 11155111),
@@ -89,6 +90,7 @@ function App() {
                 disconnectWallet={disconnectWallet}
                 walletBalance={walletBalance}
             ></Header>
+            <LotteryInfo></LotteryInfo>
             <LotteryStatus connected={connected} account={account}></LotteryStatus>
         </div>
     );
