@@ -230,7 +230,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
                 <h1 className="lottery-title">Lottery Status</h1>
                 <div className="lottery-info">
                     <p>🎟️ <strong>Ticket Price:</strong> {ticketPrice}</p>
-                    <p>👥 <strong>Participants:</strong> {participants}</p>
+                    <p>👥 <strong>Tickets bought:</strong> {participants}</p>
                     <p>⏳ <strong>Time Left:</strong> {formatTime(timeLeft)}</p>
                     <p>⏳ <strong>Your tickets:</strong> {ticketNum}</p>
                 </div>

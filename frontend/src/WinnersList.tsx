@@ -35,7 +35,7 @@ const WinnersList: React.FC = () => {
         for (let i = 0; i < currentRound; i++) {
             try {
                 console.log('try fetching round: ', i);
-                const response = await fetch(`http://0.0.0.0:8000/winner/${i}`);
+                const response = await fetch(`http://localhost:8000/winner/${i}`);
                 if (!response.ok) {
                     console.error(`Error fetching winner for round ${i}:`, response.statusText);
                     continue;

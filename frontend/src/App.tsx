@@ -7,6 +7,7 @@ import './index.css';
 import LotteryStatus from './Lottery.tsx';
 import LotteryInfo from './LotteryInfo.tsx';
 import WinnersList from './WinnersList.tsx';
+import RoundHistory from './RoundHistory.tsx';
 import { ALCHEMY_RPC_URL } from './constants.tsx';
 
 const supportedChains: ethers.Network[] = [
@@ -106,7 +107,16 @@ function App() {
                     <LotteryStatus connected={connected} account={account} />
                 </>
             )}
-            {view === 'history' && <WinnersList />}
+            {view === 'history' && (
+                <div className="history-container">
+                    <div className="winners-list">
+                        <WinnersList />
+                    </div>
+                    <div className="round-history">
+                        <RoundHistory /> {/* Pass dynamic currentRound */}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
