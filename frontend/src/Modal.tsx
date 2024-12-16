@@ -1,4 +1,5 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import copyLogo from "./assets/copy.svg";
 import etherscanLogo from "./assets/etherscan.svg";
 import ethLogo from "./assets/eth.png";
@@ -46,7 +47,7 @@ const Modal: React.FC<ModalProps> = ({
         }
     };
 
-    return (
+    return ReactDOM.createPortal(
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 {/* Close Button */}
@@ -112,8 +113,7 @@ const Modal: React.FC<ModalProps> = ({
                     </div>
                 )}
             </div>
-        </div>
-    );
+        </div>, document.body);
 };
 
 export default Modal;

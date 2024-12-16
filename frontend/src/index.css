@@ -7,17 +7,31 @@
 	font-family:Arial, Helvetica, sans-serif
 }
 
+body {
+	background-color: #fcfffa;
+}
+
 .lottery-container {
 	background: linear-gradient(135deg, #6a11cb, #2575fc);
 	border-radius: 12px;
 	padding: 20px;
 	text-align: center;
 	color: #fff;
-	max-width: 400px;
-	margin: 20px auto;
+	/* max-width: 400px; */
+	/* margin: 20px auto; */
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+	float: left;
+	width: 32%;
+	height: 380px;
+	border-radius: 10px;
+	transition: transform 0.3s ease; /* Плавное увеличение */
   }
   
+  .lottery-container:hover {
+	transform: scale(1.02); /* Увеличение до 120% */
+  
+}
+
   .lottery-title {
 	font-size: 2rem;
 	margin-bottom: 20px;
@@ -36,7 +50,7 @@
   }
   
   .lottery-button {
-	background: #ffe600;
+	background: #1bff4c;
 	color: #000;
 	border: none;
 	border-radius: 8px;
@@ -47,7 +61,7 @@
   }
   
   .lottery-button:hover {
-	background: #ffd700;
+	background: #63ffac;
 	transform: scale(1.05);
   }
 
@@ -57,6 +71,7 @@
 	margin-right: 10px;
 	text-align: center;
 	border-radius: 10px;
+	border: none;
   }
 
 
@@ -81,6 +96,12 @@
 }
 
 .main-container {
+	/* background-color: #007bff; */
+	width: 80%;
+	margin: 0 auto;
+	margin-top: 20px;
+	display: flex;
+	justify-content: space-between; /* Распределяет элементы с одинаковыми промежутками */  
 }
 
 /* List container */

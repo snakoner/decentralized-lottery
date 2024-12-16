@@ -58,6 +58,8 @@
     font-size: 1rem;
     background-color: #1263f1;
     color: #ffffff;
+    border: none;
+    border-radius: 10px;
 }
 
 .modal-wallet-copy p {

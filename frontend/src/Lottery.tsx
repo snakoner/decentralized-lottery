@@ -1,20 +1,29 @@
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { ethers } from "ethers";
 import './index.css';
-// import { bigint } from "hardhat/internal/core/params/argumentTypes";
+import "./Modal.css";
+import robotLogo from "./assets/robot2.jpeg";
 import ParticipantsList from "./ParticipantsList.tsx";
 import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS } from './constants.tsx';
 
-const Modal = ({ isOpen, onClose }) => {
+const Modal = ({ isOpen, onClose, modalContent }) => {
     if (!isOpen) return null; // Не отображаем, если окно закрыто
-    return (
+    return ReactDOM.createPortal(        
         <div className="modal-overlay">
             <div className="modal-content">
-                {/* <h2>Подключите кошелек</h2> */}
-                <p>Подключите кошелек</p>
-                <button onClick={onClose}>  ❌  </button>
+                <div className="modal-wallet-disconnected-close">
+                    <button onClick={onClose}>✖</button>
+                </div>
+                <div className="modal-wallet-disconnected-label">
+                    <p>{modalContent}</p>
+                </div>
+                <div className="modal-wallet-disconnected-image" style={{
+                    backgroundImage: `url(${robotLogo})`
+                }}></div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
@@ -38,7 +47,9 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const [ticketNum, setTicketNum] = useState<number>(0);
     const [unlockedBalance, setUnlockedBalance] = useState<bigint>(0);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [modalContent, setModalContent] = useState<string|null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const [withdrawButtonDisabled, setWithdrawButtonDisabled] = useState<boolean>(false);
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
@@ -70,7 +81,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     };
 
     // contract get state
-    const getParticipantsNumber = async() => {
+    const getTimeLeft = async() => {
         try {
             const num: bigint = await contractRpc.getTimeLeft();        
             setTimeLeft(Number(num));
@@ -127,18 +138,17 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const getBalanceToWithdraw = async() => {
         if (account !== null) {
             const num: bigint = await contractRpc.getUnlockedBalance(account);
+            if (Number(num) == 0) {
+                setWithdrawButtonDisabled(true);
+            }
             setUnlockedBalance(ethers.formatUnits(num));
         }
     }
 
     const withdraw = async() => {
         if (!connected) {
+            setModalContent('Connect your wallet to withdraw');
             openModal();
-            return;
-        }
-
-        if (Number(unlockedBalance) === 0) {
-            console.log("zero balance to withdraw");
             return;
         }
 
@@ -155,6 +165,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
 
     const buyTicket = async() => {
         if (!connected) {
+            setModalContent('Connect your wallet to buy tickets');
             openModal();
             return;
         }
@@ -201,7 +212,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
 
         // contract interaction
         setLoading(false);
-        getParticipantsNumber();
+        getTimeLeft();
         getParticipantsNum();
         getTicketPrice();
         getTicketsByUser();
@@ -227,7 +238,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
                 <button className="lottery-button" onClick={buyTicket}>
                     Buy Ticket
                 </button>
-                <Modal isOpen={isModalOpen} onClose={closeModal} />
+                <Modal isOpen={isModalOpen} onClose={closeModal} modalContent={modalContent} />
                 <div>
                     {loading ? <Spinner /> : <h1 id="tx-result"></h1>}
                 </div>
@@ -235,9 +246,9 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
             <div className="lottery-container">
                 <h1 className="lottery-title">Withdraw</h1>
                 <div className="lottery-info">
-                    <p>⏳ <strong>Available value:</strong> {unlockedBalance}</p>
+                    <p>⏳ <strong>Available value:</strong> {unlockedBalance} ETH</p>
                 </div>
-                <button id="withdraw-buttion" className="lottery-button" onClick={withdraw}>
+                <button id="withdraw-button" className="lottery-button" onClick={withdraw} disabled={withdrawButtonDisabled}>
                     Withdraw
                 </button>
             </div>
