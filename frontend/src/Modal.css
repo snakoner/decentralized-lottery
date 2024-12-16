@@ -104,6 +104,7 @@
     text-align: left;
     display: inline-block;
     margin-top: 10px;
+    margin-left: 30px;
 }
 
 .modal-wallet-copy {
@@ -177,6 +178,7 @@
     height: 20px;
     position: relative;
     text-align: left;
+    margin-left: 30px;
 }
 
 .modal-wallet-info-area p {
@@ -219,6 +221,7 @@
     position: relative;
     margin: 0 auto;
     margin-top: 10px;
+    margin-left: 30px;
     text-align: left;
     display: inline-block;
 }
