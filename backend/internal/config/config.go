@@ -9,9 +9,12 @@ import (
 )
 
 type Config struct {
-	Name     string `json:"name"`
-	LogLevel string `json:"log-level"`
-	Service  struct {
+	Name string `json:"name"`
+	Log  struct {
+		Level  string `json:"level"`
+		Output string `json:"output"`
+	} `json:"log"`
+	Service struct {
 		Host string `json:"host"`
 		Port string `json:"port"`
 	} `json:"service"`

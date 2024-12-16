@@ -7,7 +7,7 @@ type BidEvent struct {
 	Round     int64  `json:"round"`
 }
 
-type BidEvents struct {
+type BidResponse struct {
 	Events []*BidEvent `json:"events"`
 }
 
@@ -20,4 +20,9 @@ type WinnerSelectedEvent struct {
 
 type WinnerSelectedResponse struct {
 	Winner WinnerSelectedEvent `json:"winner"`
+}
+
+// eth value
+type AllTimeRewardResponse struct {
+	Reward string `json:"reward"`
 }

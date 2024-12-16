@@ -26,8 +26,8 @@ module.exports = {
   },
   solidity: "0.8.20",
   paths: {
-    sources: "./contracts", // Папка с вашими контрактами
-    artifacts: "./artifacts", // Папка для скомпилированных контрактов
+    sources: "./contracts",
+    artifacts: "./artifacts",
   },
 };
 

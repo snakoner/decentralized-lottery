@@ -52,7 +52,7 @@ func (e *EthereumServer) RoundHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	bidEvents := &models.BidEvents{}
+	bidEvents := &models.BidResponse{}
 	for logs.Next() {
 		if logs.Error() != nil {
 			e.logger.Error("Log error: %v", logs.Error())
@@ -135,6 +135,38 @@ func (e *EthereumServer) WinnerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	b, err := json.Marshal(winnerSelectedResponse)
+	if err != nil {
+		e.logger.Error(err)
+		setHttpError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(b)
+}
+
+func (e *EthereumServer) AllTimeRewardHander(w http.ResponseWriter, r *http.Request) {
+	opts := &bind.FilterOpts{
+		Start:   uint64(big.NewInt(0).Int64()),
+		End:     nil,
+		Context: context.Background(),
+	}
+
+	logs, err := e.http.inst.FilterWinnerSelected(opts, nil)
+	allTImeReward := new(big.Int)
+
+	for logs.Next() {
+		if logs.Error() != nil {
+			e.logger.Error("Log error: %v", logs.Error())
+			continue
+		}
+
+		allTImeReward = allTImeReward.Add(allTImeReward, logs.Event.Amount)
+	}
+
+	ether := new(big.Float).Quo(new(big.Float).SetInt(allTImeReward), big.NewFloat(1e18)).Text('f', 18)
+
+	b, err := json.Marshal(&models.AllTimeRewardResponse{Reward: ether})
 	if err != nil {
 		e.logger.Error(err)
 		setHttpError(w, err.Error(), http.StatusInternalServerError)
