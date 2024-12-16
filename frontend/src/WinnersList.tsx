@@ -80,7 +80,8 @@ const WinnersList: React.FC = () => {
     };
 
     return (
-        <div className="lottery-container">
+        <div className='main-container'>
+        <div className="lottery-container" style={{margin:"0 auto"}}>
             <h1 className="lottery-title">Past Winners</h1>
             <ul className="list">
                 {winners.map((winner, index) => (
@@ -109,6 +110,7 @@ const WinnersList: React.FC = () => {
                     }
                 />
             )}
+        </div>
         </div>
     );
 };

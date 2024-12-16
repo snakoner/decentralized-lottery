@@ -242,7 +242,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
             <div className="lottery-container">
                 <h1 className="lottery-title">Withdraw</h1>
                 <div className="lottery-info">
-                    <p>⏳ <strong>Available value:</strong> {unlockedBalance}</p>
+                    <p>⏳ <strong>Available value:</strong> {unlockedBalance} ETH</p>
                 </div>
                 <button id="withdraw-buttion" className="lottery-button" onClick={withdraw}>
                     Withdraw
