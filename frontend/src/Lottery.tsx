@@ -77,7 +77,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     };
 
     // contract get state
-    const getParticipantsNumber = async() => {
+    const getTimeLeft = async() => {
         try {
             const num: bigint = await contractRpc.getTimeLeft();        
             setTimeLeft(Number(num));
@@ -208,7 +208,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
 
         // contract interaction
         setLoading(false);
-        getParticipantsNumber();
+        getTimeLeft();
         getParticipantsNum();
         getTicketPrice();
         getTicketsByUser();
