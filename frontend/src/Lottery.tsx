@@ -3,9 +3,7 @@ import { ethers } from "ethers";
 import './index.css';
 // import { bigint } from "hardhat/internal/core/params/argumentTypes";
 import ParticipantsList from "./ParticipantsList.tsx";
-
-const ALCHEMY_RPC_URL = `https://eth-sepolia.g.alchemy.com/v2/QtPw5bLONCtW00agVEhE66pb1Vsv9RnC`;
-const CONTRACT_ADDRESS = "0xE8f0b7144F2be28FE6Af69f15658d7b197Bf9f11";
+import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS } from './constants.tsx';
 
 const Modal = ({ isOpen, onClose }) => {
     if (!isOpen) return null; // Не отображаем, если окно закрыто
@@ -71,35 +69,36 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
             .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
 
-    // const checkProviderConnection = async() => {
-    //     const blockNumber = await providerRpc.getBlockNumber();
-    //     console.log("current block: ", blockNumber);
-    // }
-
     // contract get state
     const getParticipantsNumber = async() => {
-        const num: bigint = await contractRpc.getTimeLeft();        
-        setTimeLeft(Number(num));
+        try {
+            const num: bigint = await contractRpc.getTimeLeft();        
+            setTimeLeft(Number(num));
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const getParticipantsNum = async() => {
         console.log("beginning operation");
-        const num: bigint = await contractRpc.getParticipantsNum();
-        console.log("Number received");
-        setParticipants(Number(num));
-        // Fetch participants list
-        console.log("beginning that one operation");
-        const myAddress: string =  await contractRpc.participants(0);
-        const tempList: string[] = [myAddress];
-        console.log(myAddress);
+        try {
+            const tempList: string[] = [];
+            const num: bigint = await contractRpc.getParticipantsNum();
+            console.log("Number received: ", num);
+            setParticipants(Number(num));
+            // Fetch participants list
+            console.log("beginning that one operation");
 
-        // for (let i = 0; i < participants; i++) {
-        //     console.log("attempting to get a participant (retarded way)");
-        //     const participantAddr = await contractRpc.getParticipants(i);
-        //     console.log(participantAddr);
-        //     tempList.push(participantAddr);
-        // }
-        setParticipantsList(tempList);
+            for (let i = 0; i < Number(num); i++) {
+                const myAddress: string =  await contractRpc.participants(i);
+                console.log(myAddress);
+                tempList.push(myAddress);
+            }
+
+            setParticipantsList(tempList);
+        } catch (error) {
+            console.log("getParticipantsNum(): ", error);
+        }
     }
 
 
@@ -132,30 +131,6 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
         }
     }
 
-    // const postBuyTicket = async(fromAddress: string, ticketNum: number) => {
-    //     try {
-    //         console.log(JSON.stringify({
-    //             fromAddress: fromAddress,
-    //             ticketNum: ticketNum,
-    //         }));
-    //         const response = await fetch("http://0.0.0.0:8000/bid", {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },     
-    //             body: JSON.stringify({
-    //                 fromAddress: fromAddress,
-    //                 ticketNum: ticketNum,
-    //             }),
-    //         });
-            
-    //         // const data = await response.json();
-    //         console.log('transaction sent');
-    //     } catch(error) {
-    //         console.log(error);
-    //     }
-    // };
-
     const withdraw = async() => {
         if (!connected) {
             openModal();
@@ -167,10 +142,9 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
             return;
         }
 
-        const signer = await browserProvider.getSigner();
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
-        
         try {
+            const signer = await browserProvider.getSigner();
+            const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
             const tx = await contract.withdraw(account);
             await tx.wait();
             getBalanceToWithdraw();

@@ -7,12 +7,11 @@ import './index.css';
 import LotteryStatus from './Lottery.tsx';
 import LotteryInfo from './LotteryInfo.tsx';
 import WinnersList from './WinnersList.tsx';
+import { ALCHEMY_RPC_URL } from './constants.tsx';
 
 const supportedChains: ethers.Network[] = [
     new ethers.Network('sepolia', 11155111),
 ];
-
-const ALCHEMY_RPC_URL = `https://eth-sepolia.g.alchemy.com/v2/QtPw5bLONCtW00agVEhE66pb1Vsv9RnC`;
 
 function App() {
     const [account, setAccount] = useState<string|null>(null);

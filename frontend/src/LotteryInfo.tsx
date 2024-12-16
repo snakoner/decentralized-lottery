@@ -17,6 +17,7 @@ const LotteryInfo = () => {
             });
             
             const data = await response.json();
+            console.log("all time reward: ", data['reward']);
             setAllTimeReward(data['reward'].slice(0, 7));
         } catch(error) {
             console.log(error);
@@ -29,7 +30,7 @@ const LotteryInfo = () => {
     }, []);
 
     return (
-        <div class="lottery-welcome">
+        <div className="lottery-welcome">
             <div className="lottery-welcome-left-side">
                 <div className="lottery-welcome-label">
                     <p>Welcome to Decentralized Lottery</p>

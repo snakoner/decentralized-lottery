@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import Modal from "./Modal.tsx"; // Added: Import the Modal component
 import { ethers } from 'ethers';
+import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS } from './constants.tsx';
 
 const contractABI = [
     "function participants(uint256) external view returns (address)",
@@ -9,16 +10,15 @@ const contractABI = [
     "event Bid(address indexed account, uint amount, uint timestamp, uint indexed round)"
 ];
 const provider = new ethers.JsonRpcProvider(
-    `https://eth-sepolia.g.alchemy.com/v2/QtPw5bLONCtW00agVEhE66pb1Vsv9RnC`
+    ALCHEMY_RPC_URL
 );
-const contractAddress = "0xE8f0b7144F2be28FE6Af69f15658d7b197Bf9f11";
 
 const ParticipantsList: React.FC = () => {
     const [participants, setParticipants] = useState<{ address: string; bid: number }[]>([]);
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false); // Added: State for modal visibility
     const [selectedParticipant, setSelectedParticipant] = useState<{ address: string; bid: number } | null>(null); // Added: State to store selected participant
 
-    const contract = useMemo(() => new ethers.Contract(contractAddress, contractABI, provider), []);
+    const contract = useMemo(() => new ethers.Contract(CONTRACT_ADDRESS, contractABI, provider), []);
 
     const fetchParticipants = async () => {
         try {

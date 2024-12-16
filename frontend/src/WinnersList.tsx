@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import Modal from './Modal.tsx';
-
+import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS } from './constants.tsx';
 const contractABI = [
     "function round() external view returns (uint)",
 ];
 const provider = new ethers.JsonRpcProvider(
-    `https://eth-sepolia.g.alchemy.com/v2/QtPw5bLONCtW00agVEhE66pb1Vsv9RnC`
+    ALCHEMY_RPC_URL
 );
-const contractAddress = "0xE8f0b7144F2be28FE6Af69f15658d7b197Bf9f11";
 
 const WinnersList: React.FC = () => {
     const [winners, setWinners] = useState<{ round: number; address: string; prize: string }[]>([]);
@@ -16,7 +15,7 @@ const WinnersList: React.FC = () => {
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
     const [selectedWinner, setSelectedWinner] = useState<{ round: number; address: string; prize: string } | null>(null);
 
-    const contract = new ethers.Contract(contractAddress, contractABI, provider);
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, provider);
 
     // Fetch the current round number from the contract
     const fetchCurrentRound = async () => {
@@ -33,25 +32,28 @@ const WinnersList: React.FC = () => {
         if (currentRound === null) return;
 
         const fetchedWinners = [];
-        for (let i = 1; i <= currentRound; i++) {
+        for (let i = 0; i < currentRound; i++) {
             try {
-                const response = await fetch(`/winner/${i}`);
+                console.log('try fetching round: ', i);
+                const response = await fetch(`http://0.0.0.0:8000/winner/${i}`);
                 if (!response.ok) {
                     console.error(`Error fetching winner for round ${i}:`, response.statusText);
                     continue;
                 }
                 const data = await response.json();
-                if (data?.Winner?.Account) {
+                if (data['winner']['round-finished']) {
                     fetchedWinners.push({
-                        round: data.Winner.Round,
-                        address: data.Winner.Account,
-                        prize: ethers.formatUnits(data.Winner.Amount, 18) + " ETH", // Format the prize amount
+                        round: data['winner']['round'],
+                        address: data['winner']['account'],
+                        prize: ethers.formatUnits(data['winner']['amount'].toString()) + " ETH", // Format the prize amount
                     });
                 }
             } catch (error) {
                 console.error(`Error fetching winner for round ${i}:`, error);
             }
         }
+
+        console.log('setWinners:', fetchedWinners);
         setWinners(fetchedWinners);
     };
 
