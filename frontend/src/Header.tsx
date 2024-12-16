@@ -73,52 +73,14 @@ const Header: React.FC<HeaderProps> = ({ connected, account, network, error, con
                             title="Your Wallet"
                             showDisconnect={true}
                         />
-                        <div className="wallet-button-container">
                             <button className="button" onClick={showWalletInfo}>
                                 {slicedWalletAddress()}
                             </button>
-                        </div>
                     </div>
                 )}
             </div>
         </header>
     );
-
-
-  return (
-      <header style={styles.header}>
-        {/* Left section: Logo */}
-        <div style={styles.leftSection}>
-          <h1 style={styles.logo}>🎲 Lottery DApp</h1>
-        </div>
-
-        {/* Center section: Tabs */}
-        <nav style={styles.centerSection}>
-          <button style={styles.tabButton}>History</button>
-          <button style={styles.tabButton}>About</button>
-        </nav>
-
-        {/* Right section: Wallet info */}
-        <div style={styles.rightSection}>
-          {!connected ? (
-              <button style={styles.button} onClick={connectWallet}>
-                Connect Wallet
-              </button>
-          ) : 
-		  ( 
-		  	<div>
-				<Modal account={account} walletBalance={walletBalance} isOpen={modalIsOpen} onClose={hideWalletInfo} onDisconnect={disconnectWalletWrapper}></Modal>
-				<div style={{display: "inline-block"}}>
-					<button style={styles.button} onClick={showWalletInfo}>
-						{slicedWalletAddress(account)}
-					</button>
-				</div>
-			</div>
-			)
-          }
-        </div>
-      </header>
-  );
 };
 
 const styles = {
