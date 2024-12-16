@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import './index.css';
-// import { bigint } from "hardhat/internal/core/params/argumentTypes";
+import "./Modal.css";
+import robotLogo from "./assets/robot2.jpeg";
 import ParticipantsList from "./ParticipantsList.tsx";
 import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS } from './constants.tsx';
 
@@ -10,9 +11,15 @@ const Modal = ({ isOpen, onClose }) => {
     return (
         <div className="modal-overlay">
             <div className="modal-content">
-                {/* <h2>Подключите кошелек</h2> */}
-                <p>Подключите кошелек</p>
-                <button onClick={onClose}>  ❌  </button>
+                <div className="modal-wallet-disconnected-close">
+                    <button onClick={onClose}>✖</button>
+                </div>
+                <div className="modal-wallet-disconnected-label">
+                    <p>Connect your wallet to buy tickets</p>
+                </div>
+                <div className="modal-wallet-disconnected-image" style={{
+                    backgroundImage: `url(${robotLogo})`
+                }}></div>
             </div>
         </div>
     );

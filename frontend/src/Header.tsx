@@ -27,12 +27,10 @@ const Header: React.FC<HeaderProps> = ({ connected, account, network, error, con
     };
 
     const showWalletInfo = () => {
-        console.log("show ");
         setModalIsOpen(true);
     };
 
     const hideWalletInfo = () => {
-        console.log("close");
         setModalIsOpen(false);
     }
 
