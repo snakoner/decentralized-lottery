@@ -47,7 +47,7 @@ const LotteryInfo = () => {
 						}}></div>
                         <div className="lottery-welcome-statistics-info-text">
                             <p>All time reward</p>
-                            <p style={{fontSize: "16px", fontWeight: "100"}}>{100} ETH</p>
+                            <p style={{fontSize: "16px", fontWeight: "100"}}>{allTimeReward} ETH</p>
                         </div>
                     </div>
                     <div className="lottery-welcome-statistics-info" style={{float:"right"}}>

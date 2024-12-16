@@ -85,7 +85,7 @@
     width: 80px;
     height: 80px;
     margin-top: 10px;
-    margin-left: 10px;
+    margin-left: 50px;
     background-size: cover;
     background-position: center;
     float: left;
@@ -98,11 +98,9 @@
     font-size: 1.3em;
     color: black;
     font-weight: 700;
-    /* background-color: #2575fc; */
     float: right;
     text-align: left;
     margin-top: 30px;
-    /* background-color: #2575fc; */
 }
 
 .lottery-welcome-statistics-info-total-reward {
