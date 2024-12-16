@@ -1,0 +1,153 @@
+.lottery-welcome {
+    width: 80%;
+    min-width: 960px;
+    height: auto;
+    /* background-color: #126df1; */
+	background: linear-gradient(135deg, #6a11cb, #2575fc);
+    border-radius: 10px;
+    margin: 0 auto;
+    margin-top: 20px;
+    display: inline-block;
+}
+
+.lottery-welcome img {
+    position: relative;
+    float: right;
+    width: 30%;
+    border-radius: 10px;
+    background-size: cover;
+    -webkit-mask-image: linear-gradient(to left, rgb(158, 125, 125), transparent);
+    background-color: #a3a3a3;
+    padding-top: 0;
+}
+
+.lottery-welcome-left-side {
+    position: relative;
+    width: 70%;
+    float: left;
+}
+
+.lottery-welcome-label {
+    position: relative;
+    width: 90%;
+    /* height: 100px; */
+    margin-top: 20px;
+    margin-left: 20px;
+    text-align: left;
+    float: left;
+}
+
+.lottery-welcome-label p {
+    padding-top: 20px;
+    padding-left: 20px;
+    font-size: 50px;
+    font-weight: 700;
+    color: white;
+}
+
+.lottery-welcome-description {
+    margin-left: 40px;
+    margin-top: 10px;
+    position: relative;
+    width: 90%;
+    min-width: 400px;
+    overflow: hidden;
+    /* background-color: #a3a3a3; */
+    float: left;
+    text-align: left;
+}
+
+.lottery-welcome-description p {
+    font-size: 24px;
+    color: rgb(200, 200, 200);
+}
+
+.lottery-welcome-statistics {
+    position: relative;
+    width: 70%;
+    min-width: 500px;
+    height: 100px;
+    /* background-color: aqua; */
+    float: left;
+    margin-top: 40px;
+    margin-left: 40px;
+    display: inline-block;
+}
+
+
+.lottery-welcome-statistics-info {
+    width: 48%;
+    height: 100%;
+    background-color: rgb(255, 255, 255);
+    border-radius: 10px;
+    float: left;
+    display: inline-block;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;  
+}
+
+.lottery-welcome-statistics-info:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    transform: translateY(-5px);  
+}
+
+.lottery-welcome-statistics-info-logo {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    float: left;
+    margin-top: 10px;
+    margin-left: 10px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* background-color: #126df1; */
+}
+
+.lottery-welcome-statistics-info-text {
+    width: 60%;
+    height: 30px;
+    /* background-color: #a3a3a3; */
+    float: right;
+    text-align: left;
+    margin-top: 10px;
+}
+
+.lottery-welcome-statistics-info-text p{
+    color: black;
+    font-size: 20px;
+    font-weight: 700;
+    padding-top: 10px;
+}
+
+.lottery-welcome-statistics-info-total-reward {
+    width: 60%;
+    height: 30px;
+    float: right;
+    text-align: left;
+    margin-top: 5px;
+}
+
+.lottery-welcome-statistics-info-total-reward p{
+    color: black;
+    font-size: 18px;
+    padding-top: 10px;
+}
+
+
+.lottery-welcome-statistics-info-text-powered {
+    width: 60%;
+    /* height: 30px; */
+    /* background-color: #a3a3a3; */
+    float: left;
+    text-align: left;
+    /* margin-top: 30px; */
+    margin-left: 10px;
+}
+
+.lottery-welcome-statistics-info-text-powered p {
+    padding-top: 26px;
+    font-size: 1.2em;
+    color: black;
+    font-weight: 600;
+}

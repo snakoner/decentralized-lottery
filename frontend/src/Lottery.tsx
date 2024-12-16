@@ -2,9 +2,8 @@ import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import './index.css';
 // import { bigint } from "hardhat/internal/core/params/argumentTypes";
-
-const ALCHEMY_RPC_URL = process.env.REACT_APP_ALCHEMY_PRC_URL;
-const CONTRACT_ADDRESS = "0x5908C0CD77e0FA105565a2BAF5c0F0C4ba60e978";
+import ParticipantsList from "./ParticipantsList.tsx";
+import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS } from './constants.tsx';
 
 const Modal = ({ isOpen, onClose }) => {
     if (!isOpen) return null; // Не отображаем, если окно закрыто
@@ -34,6 +33,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const [ticketPriceWei, setTicketPriceWei] = useState<bigint>(0);
     const [ticketPrice, setTicketPrice] = useState<string>(""); 
     const [participants, setParticipants] = useState<number>(0);
+    const [participantsList, setParticipantsList] = useState<string[]>([]); //ADDED
     const [timeLeft, setTimeLeft] = useState<number>(0);
     const [ticketNum, setTicketNum] = useState<number>(0);
     const [unlockedBalance, setUnlockedBalance] = useState<bigint>(0);
@@ -46,6 +46,8 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const contractABI = [
         "function getTimeLeft() external view returns (uint)",
         "function getParticipantsNum() external view returns (uint)",
+        //"function getParticipants() external view returns (address)",
+        "function participants(uint256) external view returns (address)",
         "function getUnlockedBalance(address account) external view returns (uint)",
         "function getTicketNum(address account) external view returns (uint)",
         "function ticketPrice() public view returns (uint)",
@@ -67,21 +69,39 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
             .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     };
 
-    // const checkProviderConnection = async() => {
-    //     const blockNumber = await providerRpc.getBlockNumber();
-    //     console.log("current block: ", blockNumber);
-    // }
-
     // contract get state
     const getParticipantsNumber = async() => {
-        const num: bigint = await contractRpc.getTimeLeft();        
-        setTimeLeft(Number(num));
+        try {
+            const num: bigint = await contractRpc.getTimeLeft();        
+            setTimeLeft(Number(num));
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const getParticipantsNum = async() => {
-        const num: bigint = await contractRpc.getParticipantsNum();
-        setParticipants(Number(num));
+        console.log("beginning operation");
+        try {
+            const tempList: string[] = [];
+            const num: bigint = await contractRpc.getParticipantsNum();
+            console.log("Number received: ", num);
+            setParticipants(Number(num));
+            // Fetch participants list
+            console.log("beginning that one operation");
+
+            for (let i = 0; i < Number(num); i++) {
+                const myAddress: string =  await contractRpc.participants(i);
+                console.log(myAddress);
+                tempList.push(myAddress);
+            }
+
+            setParticipantsList(tempList);
+        } catch (error) {
+            console.log("getParticipantsNum(): ", error);
+        }
     }
+
+
 
     const getTicketPrice = async() => {
         const num: bigint = await contractRpc.ticketPrice();
@@ -111,30 +131,6 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
         }
     }
 
-    // const postBuyTicket = async(fromAddress: string, ticketNum: number) => {
-    //     try {
-    //         console.log(JSON.stringify({
-    //             fromAddress: fromAddress,
-    //             ticketNum: ticketNum,
-    //         }));
-    //         const response = await fetch("http://0.0.0.0:8000/bid", {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //             },     
-    //             body: JSON.stringify({
-    //                 fromAddress: fromAddress,
-    //                 ticketNum: ticketNum,
-    //             }),
-    //         });
-            
-    //         // const data = await response.json();
-    //         console.log('transaction sent');
-    //     } catch(error) {
-    //         console.log(error);
-    //     }
-    // };
-
     const withdraw = async() => {
         if (!connected) {
             openModal();
@@ -146,10 +142,9 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
             return;
         }
 
-        const signer = await browserProvider.getSigner();
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
-        
         try {
+            const signer = await browserProvider.getSigner();
+            const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
             const tx = await contract.withdraw(account);
             await tx.wait();
             getBalanceToWithdraw();
@@ -212,8 +207,6 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
         getTicketsByUser();
         getBalanceToWithdraw();
 
-        // const timerSpinner = setTimeout(() => {}, 3000); // 3 секунды    
-
         const timer = setInterval(() => {
             setTimeLeft((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
         }, 1000);
@@ -244,10 +237,12 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
                 <div className="lottery-info">
                     <p>⏳ <strong>Available value:</strong> {unlockedBalance}</p>
                 </div>
-                <button className="lottery-button" onClick={withdraw}>
+                <button id="withdraw-buttion" className="lottery-button" onClick={withdraw}>
                     Withdraw
                 </button>
             </div>
+            {/* Add the new lists */}
+            <ParticipantsList />
         </div>        
     );
 };
