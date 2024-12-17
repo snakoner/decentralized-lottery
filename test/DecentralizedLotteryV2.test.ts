@@ -89,11 +89,11 @@ describe("DecentralizedLottery contract", function() {
         }
 
         // check initial state
-        let roundInfo = await contract.rounds(0);
-        expect(roundInfo.totalWeight).to.be.eq(totalWeight);
-        expect(roundInfo.totalParticipants).to.be.eq(parts.length);
-        expect(roundInfo.winner).to.be.eq(ethers.ZeroAddress);
-        expect(roundInfo.finished).to.be.eq(false);
+        let weight = await contract.totalWeight(0);
+        let partNumber = await contract.getParticipantsNumber();
+
+        expect(weight).to.be.eq(totalWeight);
+        expect(partNumber).to.be.eq(parts.length);
         expect(await contract.getParticipantsNumber()).to.be.eq(parts.length);
 
         // 2. should be start lottery
@@ -153,12 +153,8 @@ describe("DecentralizedLottery contract", function() {
         const nextRound = await contract.round();
         expect(nextRound).to.be.eq(1);
 
-        roundInfo = await contract.rounds(nextRound);
-        expect(roundInfo.totalWeight).to.be.eq(0);
-        expect(roundInfo.totalParticipants).to.be.eq(0);
-        expect(roundInfo.winner).to.be.eq(ethers.ZeroAddress);
-        expect(roundInfo.finished).to.be.eq(false);
-
+        weight = await contract.totalWeight(nextRound);
+        expect(weight).to.be.eq(0);
         expect(await contract.getParticipantsNumber()).to.be.eq(0);
 
         // 7. check the ability to bid() in new round

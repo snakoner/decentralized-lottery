@@ -23,16 +23,8 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
     mapping (address => uint) public balances; // Tracks withdrawable balances of users (winner/owner).
     mapping (uint => mapping (address => uint)) weights;
     mapping (uint => mapping (address => bool)) participantExist;
+    mapping (uint => uint) public totalWeight;
     address[] public participants;
-    Round[] public rounds;
-
-    struct Round {
-        uint timeFinished;
-        uint totalWeight;
-        uint totalParticipants;
-        address winner;
-        bool finished;
-    }
 
     // Modifiers
     modifier enoughEthersSent(uint amount) {
@@ -47,6 +39,11 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
 
     modifier lotteryFinished() {
         require(block.timestamp >= endTime, "lottery not finished");
+        _;
+    }
+
+    modifier validRound(uint _round) {
+        require(_round <= round, "invalid round");
         _;
     }
 
@@ -68,22 +65,8 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         ticketPrice = _ticketPrice;
         duration = _duration;
         endTime = block.timestamp + _duration;
-
-        _createNewRound();
     }
 
-    /**
-     * @dev Add new round structure to array.
-     */
-    function _createNewRound() internal {
-        rounds.push(Round({
-            timeFinished: 0,
-            totalWeight: 0,
-            totalParticipants: 0,
-            winner: address(0),
-            finished: false
-        }));
-    }
 
     /**
      * @dev Allows users to buy lottery tickets by sending ETH.
@@ -95,14 +78,11 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
             payable(msg.sender).transfer(refund);
         }
 
-        Round storage currentRound = rounds[round];
-
         if (!participantExist[round][msg.sender]) {
             participants.push(msg.sender);
-            currentRound.totalParticipants++;
         }
 
-        currentRound.totalWeight += amount;
+        totalWeight[round] += amount;
         weights[round][msg.sender] += amount;
 
         emit Bid(msg.sender, amount, block.timestamp, round);
@@ -117,7 +97,7 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         onlyOwner 
         lotteryFinished 
     {
-        require(rounds[round].totalParticipants == 0, "have participants");
+        require(participants.length == 0, "have participants");
 
         duration = newDuration != 0 ? newDuration : duration;
         endTime = block.timestamp + duration;
@@ -135,32 +115,29 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
      * @dev Selects a winner, calculates rewards, and starts a new lottery round.
      */
     function start() external onlyOwner lotteryFinished {
-        require(rounds[round].totalParticipants > 0, "not enough participants"); 
+        require(participants.length > 0, "not enough participants"); 
 
-        Round storage currentRound = rounds[round];
-        uint randomValue = generateRandom() % participants.length; 
+        uint randomValue = generateRandom() % totalWeight[round]; 
         uint cumulativeWeight = 0;
+        address winner;
 
         for (uint i = 0; i < participants.length; i++) {
             cumulativeWeight += weights[round][participants[i]];
             if (randomValue < cumulativeWeight) {
-                currentRound.winner = participants[i];
-                currentRound.finished = true;
-                currentRound.timeFinished = block.timestamp;
+                winner = participants[i];
                 break;
             }
         }
 
-        uint totalBid = currentRound.totalWeight * ticketPrice;
+        uint totalBid = totalWeight[round] * ticketPrice;
         uint fee = (totalBid * ownerFee) / 100;
         uint reward = totalBid - fee;
         
         balances[owner()] += fee;
-        balances[currentRound.winner] += reward;
+        balances[winner] += reward;
 
-        emit WinnerSelected(currentRound.winner, reward, round);
+        emit WinnerSelected(winner, reward, round);
 
-        _createNewRound();
         round++;
         endTime = block.timestamp + duration;
 
@@ -200,4 +177,8 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
 
         return endTime - block.timestamp;
     }
+
+    // function getTotalWeight(uint _round) external validRound(_round) view returns (uint) {
+    //     return totalWeight[_round];
+    // }
 }
