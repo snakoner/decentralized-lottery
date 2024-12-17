@@ -45,7 +45,6 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         _;
     }
 
-
     constructor(
         uint _ownerFee, 
         uint _duration, 
@@ -59,6 +58,10 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         duration = _duration;
         endTime = block.timestamp + _duration;
 
+        _createNewRound();
+    }
+
+    function _createNewRound() internal {
         rounds.push(Round({
             timeFinished: 0,
             totalWeight: 0,
@@ -125,18 +128,10 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         
         balances[owner()] += fee;
         balances[currentRound.winner] += reward;
-        totalBid = 0;
 
         emit WinnerSelected(currentRound.winner, reward, round);
 
-        rounds.push(Round({
-            timeFinished: 0,
-            totalWeight: 0,
-            totalParticipants: 0,
-            winner: address(0),
-            finished: false
-        }));
-
+        _createNewRound();
         round++;
         endTime = block.timestamp + duration;
 
