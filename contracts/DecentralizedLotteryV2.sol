@@ -188,4 +188,16 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
     function getParticipantsNumber() external view returns (uint) {
         return participants.length;
     }
+
+    /**
+     * @dev Gets the time remaining for the current round.
+     * @return Time remaining in seconds, or 0 if the round has ended.
+     */
+    function getTimeLeft() external view returns (uint) {
+        if (endTime < block.timestamp) {
+            return 0;
+        }
+
+        return endTime - block.timestamp;
+    }
 }

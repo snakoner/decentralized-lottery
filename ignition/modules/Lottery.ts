@@ -6,11 +6,11 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 const contractParams = {
   ownerFee: 2,
   duration: 60 * 60 * 24,
-  ticketPrice: 1000000000000000, // 10 ^ 15 wei = 0.001 eth
+  ticketPrice: 100000000000000, // 10 ^ 15 wei = 0.0001 eth
 };
 
-const DecentralizedLottery = buildModule("DecentralizedLottery", (m) => {
-	const lotteryContract = m.contract("DecentralizedLottery", 
+const DecentralizedLottery = buildModule("DecentralizedLotteryV2", (m) => {
+	const lotteryContract = m.contract("DecentralizedLotteryV2", 
 		[
 		contractParams.ownerFee,
 		contractParams.duration,
