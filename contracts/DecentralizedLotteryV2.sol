@@ -181,4 +181,22 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
     // function getTotalWeight(uint _round) external validRound(_round) view returns (uint) {
     //     return totalWeight[_round];
     // }
+
+    function bidFromBalance(uint amount) external lotteryNotFinished {
+        uint value = amount * ticketPrice;
+        require(balances[msg.sender] >= value, "insufficient balance");
+        
+        unchecked {
+            balances[msg.sender] -= value;
+        }
+
+        if (!participantExist[round][msg.sender]) {
+            participants.push(msg.sender);
+        }
+
+        totalWeight[round] += amount;
+        weights[round][msg.sender] += amount;
+
+        emit Bid(msg.sender, amount, block.timestamp, round);
+    }
 }

@@ -13,7 +13,7 @@
         "wss-provider": "wss://eth-sepolia.g.alchemy.com/v2/"
     },
     "contract": {
-        "name": "DecentralizedLottery",
-        "address": "0x392F916723e02D5e865573e8602FBc4C327BdccB"
+        "name": "DecentralizedLotteryV2",
+        "address": "0x7f4e22837bc2B3626476f0346184bE9218e52C21"
     }
 }

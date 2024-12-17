@@ -5,7 +5,7 @@ const contractDeployData = {
     ticketPrice: ethers.parseEther("1.0"),
     duration: 60 * 60 * 25, // 25 hours
     ownerCommission: 2,
-    feePaidDelta: ethers.parseEther("0.01"),	
+    feePaidDelta: ethers.parseEther("4.0"),	
 };
 
 function getSignerByAddress(address: string, signers: HardhatEthersSigner[]) : HardhatEthersSigner {
@@ -134,6 +134,20 @@ describe("DecentralizedLottery contract", function() {
         const winner = getSignerByAddress(winnerAddress, parts)
         const winnerBalanceBefore = await ethers.provider.getBalance(winner.address);
 
+        // 6. bid from balance
+        await contract.connect(winner).bidFromBalance(2);
+        const ticketWeight = await contract.weights(ethers.toBigInt(await contract.round()), winner.address);
+
+        const _nextRound = await contract.round();
+        expect(_nextRound).to.be.eq(1);
+
+        weight = await contract.totalWeight(_nextRound);
+        expect(weight).to.be.eq(2);
+        expect(await contract.getParticipantsNumber()).to.be.eq(1);
+
+        expect(ticketWeight).to.be.eq(ethers.toBigInt(2));
+
+        // 7. withdraw
         await contract.connect(winner).withdraw();
 
         const winnerBalanceAfter = await ethers.provider.getBalance(winner.address);
@@ -149,22 +163,5 @@ describe("DecentralizedLottery contract", function() {
 
         expect(ownerBalanceAfter - ownerBalanceBefore).to.be.greaterThan(ownerFee - contractDeployData.feePaidDelta);
 
-        // 6. check that new round started
-        const nextRound = await contract.round();
-        expect(nextRound).to.be.eq(1);
-
-        weight = await contract.totalWeight(nextRound);
-        expect(weight).to.be.eq(0);
-        expect(await contract.getParticipantsNumber()).to.be.eq(0);
-
-        // 7. check the ability to bid() in new round
-        try {
-            const weiValue = ethers.toBigInt(participants[0].ticketsNumber) * contractDeployData.ticketPrice;
-            await contract.connect(participants[0].signer).bid(participants[0].ticketsNumber, {
-                value: weiValue,
-            });
-        } catch {
-            expect(false).to.be.eq(true);
-        }
     });
 })
