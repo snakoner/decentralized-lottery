@@ -21,7 +21,7 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
     uint immutable public ticketPrice; // Price of a single lottery ticket.
     uint immutable public ownerFee; // Fee percentage taken by the owner.
     mapping (address => uint) public balances; // Tracks withdrawable balances of users (winner/owner).
-    mapping (uint => mapping (address => uint)) weights;
+    mapping (uint => mapping (address => uint)) public weights;
     mapping (uint => mapping (address => bool)) participantExist;
     mapping (uint => uint) public totalWeight;
     address[] public participants;
