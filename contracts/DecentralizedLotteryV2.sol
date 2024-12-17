@@ -4,7 +4,13 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IDecentralizedLottery.sol";
 
+/**
+ * @title DecentralizedLottery
+ * @dev A lottery smart contract where participants buy tickets, and a random winner is selected.
+ * The owner collects a fee, and the winner receives the prize pool.
+ */
 contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
+    // Constants
     uint constant MAX_OWNER_FEE = 2; // Maximum allowable owner fee in percentage.
     uint constant MIN_DURATION = 1 days; // Minimum duration for a lottery round.
 
@@ -34,7 +40,6 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         _;
     }
 
-    // We have got endTime state variable, which shows if current round finished
     modifier lotteryNotFinished() {
         require(block.timestamp < endTime, "lottery already finished");
         _;
@@ -45,6 +50,12 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         _;
     }
 
+    /**
+     * @dev Contract constructor initializes lottery parameters.
+     * @param _ownerFee Fee percentage taken by the owner (must not exceed MAX_OWNER_FEE).
+     * @param _duration Duration of each lottery round (must not be less than MIN_DURATION).
+     * @param _ticketPrice Price of a single lottery ticket.
+     */
     constructor(
         uint _ownerFee, 
         uint _duration, 
@@ -61,6 +72,9 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         _createNewRound();
     }
 
+    /**
+     * @dev Add new round structure to array.
+     */
     function _createNewRound() internal {
         rounds.push(Round({
             timeFinished: 0,
@@ -71,6 +85,10 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         }));
     }
 
+    /**
+     * @dev Allows users to buy lottery tickets by sending ETH.
+     * @param amount Number of tickets the user wants to purchase.
+     */
     function bid(uint amount) external payable enoughEthersSent(amount) lotteryNotFinished {
         uint refund = msg.value - amount * ticketPrice;
         if (refund > 0) {
@@ -90,6 +108,10 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         emit Bid(msg.sender, amount, block.timestamp, round);
     }
 
+    /**
+     * @dev Restarts a new lottery round with a given duration if the current one is empty.
+     * @param newDuration Optional new duration for the next round (defaults to current duration).
+     */
     function restartEmpty(uint newDuration) 
         external 
         onlyOwner 
@@ -101,10 +123,17 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         endTime = block.timestamp + duration;
     }
 
+    /**
+     * @dev Generates a random number using keccak256 (not truly random, for demonstration purposes).
+     * @return Random number.
+     */
     function generateRandom() private view returns (uint) {
         return uint(keccak256(abi.encodePacked(block.prevrandao, block.timestamp)));
     }
 
+    /**
+     * @dev Selects a winner, calculates rewards, and starts a new lottery round.
+     */
     function start() external onlyOwner lotteryFinished {
         require(rounds[round].totalParticipants > 0, "not enough participants"); 
 
@@ -138,6 +167,9 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         delete participants;
     }
 
+    /**
+     * @dev Allows a user to withdraw their available balance.
+     */
     function withdraw() external {
         require(balances[msg.sender] > 0, "nothing to withdraw");
 
@@ -149,6 +181,10 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         emit Withdraw(msg.sender, value);
     }
 
+    /**
+     * @dev Gets the number of participants in current round.
+     * @return Number of participants.
+     */
     function getParticipantsNumber() external view returns (uint) {
         return participants.length;
     }
