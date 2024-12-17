@@ -134,6 +134,8 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
 
         round++;
         endTime = block.timestamp + duration;
+        participantsNum = 0;
+
         delete participants;
     }
 
