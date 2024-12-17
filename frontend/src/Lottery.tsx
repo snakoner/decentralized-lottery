@@ -5,11 +5,12 @@ import './index.css';
 import "./Modal.css";
 import robotLogo from "./assets/robot2.jpeg";
 import ParticipantsList from "./ParticipantsList.tsx";
+import WinnersList from './WinnersList.tsx';
 import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS } from './constants.tsx';
 
 const Modal = ({ isOpen, onClose, modalContent }) => {
     if (!isOpen) return null; // Не отображаем, если окно закрыто
-    return ReactDOM.createPortal(        
+    return ReactDOM.createPortal(
         <div className="modal-overlay">
             <div className="modal-content">
                 <div className="modal-wallet-disconnected-close">
@@ -40,7 +41,7 @@ interface LotteryProps {
 
 const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const [ticketPriceWei, setTicketPriceWei] = useState<bigint>(0);
-    const [ticketPrice, setTicketPrice] = useState<string>(""); 
+    const [ticketPrice, setTicketPrice] = useState<string>("");
     const [participants, setParticipants] = useState<number>(0);
     const [participantsList, setParticipantsList] = useState<string[]>([]); //ADDED
     const [timeLeft, setTimeLeft] = useState<number>(0);
@@ -62,7 +63,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
         "function getUnlockedBalance(address account) external view returns (uint)",
         "function getTicketNum(address account) external view returns (uint)",
         "function ticketPrice() public view returns (uint)",
-        "function round() public view returns (uint)",        
+        "function round() public view returns (uint)",
         "function bid(uint amount) external payable",
         "function withdraw(address payable _to) external",
     ];
@@ -83,7 +84,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     // contract get state
     const getTimeLeft = async() => {
         try {
-            const num: bigint = await contractRpc.getTimeLeft();        
+            const num: bigint = await contractRpc.getTimeLeft();
             setTimeLeft(Number(num));
         } catch (error) {
             console.log(error);
@@ -128,7 +129,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const getTicketsByUser = async() => {
         // let _account;
         // _account = await getAccount();
-        
+
         if (account !== null) {
             const num: bigint = await contractRpc.getTicketNum(account);
             setTicketNum(Number(num));
@@ -191,7 +192,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
         const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
         try {
             setLoading(true);
-            const tx = await contract.bid(ethers.toBigInt(ticketNumber), txParams);        
+            const tx = await contract.bid(ethers.toBigInt(ticketNumber), txParams);
             await tx.wait();
             const txResult = document.getElementById('tx-result');
             if (txResult) {
@@ -201,7 +202,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
             getTicketsByUser();
         } catch (error) {
             console.log(error);
-        }    
+        }
 
         setLoading(false);
     }
@@ -226,36 +227,42 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
 
     return (
         <div className="main-container">
-            <div className="lottery-container">
-                <h1 className="lottery-title">Lottery Status</h1>
+            {/* Left Section: Participants List */}
+            <ParticipantsList />
+
+            {/* Center Section: Lottery Status */}
+            <div className="lottery-container lottery-center">
+                {/* My Winnings */}
+                <div className="lottery-info">
+                    <p>💰 <strong>My winnings:</strong> {unlockedBalance} ETH</p>
+                </div>
+
+                {/* Break Line */}
+                <hr className="section-divider" />
+                {/* Buy Ticket Block */}
+                <div className="lottery-info">
+                    <input id="input-lottery" className="lottery-input" placeholder="1"></input>
+                    <button className="lottery-button" onClick={buyTicket}>
+                        Buy Ticket
+                    </button>
+                </div>
+
+                {/* Lottery Information */}
                 <div className="lottery-info">
                     <p>🎟️ <strong>Ticket Price:</strong> {ticketPrice}</p>
                     <p>👥 <strong>Tickets bought:</strong> {participants}</p>
                     <p>⏳ <strong>Time Left:</strong> {formatTime(timeLeft)}</p>
                     <p>⏳ <strong>Your tickets:</strong> {ticketNum}</p>
                 </div>
-                <input id="input-lottery" className="lottery-input" placeholder="1"></input>
-                <button className="lottery-button" onClick={buyTicket}>
-                    Buy Ticket
-                </button>
-                <Modal isOpen={isModalOpen} onClose={closeModal} modalContent={modalContent} />
-                <div>
-                    {loading ? <Spinner /> : <h1 id="tx-result"></h1>}
-                </div>
-            </div>
-            <div className="lottery-container">
-                <h1 className="lottery-title">Withdraw</h1>
-                <div className="lottery-info">
-                    <p>⏳ <strong>Available value:</strong> {unlockedBalance} ETH</p>
-                </div>
-                <button id="withdraw-button" className="lottery-button" onClick={withdraw} disabled={withdrawButtonDisabled}>
-                    Withdraw
-                </button>
-            </div>
-            {/* Add the new lists */}
-            <ParticipantsList />
-        </div>        
-    );
-};
 
-export default LotteryStatus;
+            </div>
+
+            {/* Right Section: Winners List */}
+            
+            <WinnersList />
+
+        </div>
+            );
+            };
+
+            export default LotteryStatus;

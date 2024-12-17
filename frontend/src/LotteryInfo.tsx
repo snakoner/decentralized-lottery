@@ -31,20 +31,22 @@ const LotteryInfo = () => {
 
     return (
         <div className="lottery-welcome">
+            {/* Left Side */}
             <div className="lottery-welcome-left-side">
                 <div className="lottery-welcome-label">
                     <p>Welcome to Decentralized Lottery</p>
                 </div>
                 <div className="lottery-welcome-description">
                     <p>
-                        Experience a fair, transparent, and decentralized way to win big! Powered by blockchain, our lottery ensures trust and excitement for every participant. Join today and test your luck
+                        Experience now
                     </p>
                 </div>
                 <div className="lottery-welcome-statistics">
                     <div className="lottery-welcome-statistics-info">
-                        <div className="lottery-welcome-statistics-info-logo" style={{
-							backgroundImage: `url(${trophyLogo})`
-						}}></div>
+                        <div
+                            className="lottery-welcome-statistics-info-logo"
+                            style={{ backgroundImage: `url(${trophyLogo})` }}
+                        ></div>
                         <div className="lottery-welcome-statistics-info-text">
                             <p>All time reward:</p>
                         </div>
@@ -52,18 +54,23 @@ const LotteryInfo = () => {
                             <p>{allTimeReward} ETH</p>
                         </div>
                     </div>
-                    <div className="lottery-welcome-statistics-info" style={{float:"right"}}>
-                        <div className="lottery-welcome-statistics-info-logo" style={{
-							backgroundImage: `url(${ethereumLogo})`
-						}}></div>
+                    <div
+                        className="lottery-welcome-statistics-info"
+                        style={{ float: "right" }}
+                    >
+                        <div
+                            className="lottery-welcome-statistics-info-logo"
+                            style={{ backgroundImage: `url(${ethereumLogo})` }}
+                        ></div>
                         <div className="lottery-welcome-statistics-info-text-powered">
-                            <p className="lottery-welcome-statistics-info-text-powered">Build on Ethereum</p>
+                            <p>Build on Ethereum</p>
                         </div>
                     </div>
-                    {/* <div className="lottery-welcome-statistics-info" style={{float:"right"}}></div> */}
                 </div>
             </div>
-            <img src={robotImage}></img>
+
+            {/* Image */}
+            <img src={robotImage} className="lottery-welcome-image" alt="Robot" />
         </div>
     );
 }

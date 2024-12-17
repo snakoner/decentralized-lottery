@@ -1,13 +1,14 @@
 .lottery-welcome {
     width: 80%;
     min-width: 960px;
-    height: auto;
     /* background-color: #126df1; */
 	background: linear-gradient(135deg, #6a11cb, #2575fc);
     border-radius: 10px;
     margin: 0 auto;
     margin-top: 20px;
-    display: inline-block;
+    display: flex;
+    align-items: stretch; /* Make all children take equal height */
+    height: auto;
 }
 
 .lottery-welcome img {
@@ -25,6 +26,10 @@
     position: relative;
     width: 70%;
     float: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertically centers content */
+    padding: 20px;
 }
 
 .lottery-welcome-label {
@@ -150,4 +155,11 @@
     font-size: 1.2em;
     color: black;
     font-weight: 600;
+}
+
+.lottery-welcome-image {
+    height: auto; /* Keeps image proportional */
+    max-height: 100%; /* Prevents image overflow */
+    width: auto;
+    object-fit: contain; /* Ensures image fits within container */
 }

@@ -22,10 +22,17 @@ body {
 	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 	float: left;
 	width: 32%;
-	height: 380px;
 	border-radius: 10px;
 	transition: transform 0.3s ease; /* Плавное увеличение */
+	justify-content: center; /* Center content vertically */
+	align-items: center; /* Center content horizontally */
+	/* Center text alignment */
+	height: 100%; /* Fill parent height */
   }
+
+.lottery-center {
+	width: 32%; /* Ensure it matches other containers' width */
+}
   
   .lottery-container:hover {
 	transform: scale(1.02); /* Увеличение до 120% */
@@ -101,7 +108,9 @@ body {
 	margin: 0 auto;
 	margin-top: 20px;
 	display: flex;
-	justify-content: space-between; /* Распределяет элементы с одинаковыми промежутками */  
+	justify-content: space-between; /* Распределяет элементы с одинаковыми промежутками */
+	align-items: center; /* Vertically center the content */
+	height: 500px;
 }
 
 /* List container */
@@ -146,4 +155,23 @@ body {
 .list-item.winner {
 	font-weight: bold;
 	color: #ffe600;
+}
+
+.section-divider {
+	border: none;
+	height: 1px;
+	background-color: rgba(255, 255, 255, 0.3); /* Matches style from Current Participants */
+	margin: 20px 0; /* Adds spacing above and below the line */
+}
+
+.modal-winnings {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.lottery-button {
+	padding: 5px 10px;
+	font-size: 14px;
+	cursor: pointer;
 }

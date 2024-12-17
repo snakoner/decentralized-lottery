@@ -99,11 +99,16 @@ const ParticipantsList: React.FC = () => {
             {/* Added: Modal for showing participant details */}
             <Modal
                 account={selectedParticipant?.address || ""}
-                walletBalance={`${selectedParticipant?.bid || 0} Tickets`}
+                walletBalance={`${selectedParticipant?.bid || 0} 🎟️ Tickets`}
                 isOpen={modalIsOpen}
                 onClose={hideParticipantInfo}
                 onDisconnect={() => {}} // No disconnect functionality for participants
-                title="Participant Details" // Updated: Title for participants
+                title="Participant Details"
+                content={
+                    <div>
+                        <p>🎟️ <strong>Tickets bought:</strong> {selectedParticipant?.bid} ticket(s)</p>
+                    </div>
+                }// Updated: Title for participants
                 showDisconnect={false} // Updated: Hide Disconnect button
             />
         </div>

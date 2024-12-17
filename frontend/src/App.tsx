@@ -108,14 +108,11 @@ function App() {
                 </>
             )}
             {view === 'history' && (
-                <div className="history-container">
-                    <div className="winners-list">
+                <>
                         <WinnersList />
-                    </div>
-                    <div className="round-history">
-                        <RoundHistory /> {/* Pass dynamic currentRound */}
-                    </div>
-                </div>
+                        <RoundHistory />
+                </>
+                
             )}
         </div>
     );
