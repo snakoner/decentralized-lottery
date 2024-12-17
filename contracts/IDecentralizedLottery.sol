@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-interface IDecentralizerLottery {
+interface IDecentralizedLottery {
     /**
      * @dev Emitted when account buys one ticket
      */
@@ -15,7 +15,7 @@ interface IDecentralizerLottery {
     /**
      * @dev Emitted when owner picked winner
      */
-    event Withdraw(address indexed account, address indexed to, uint amount);
+    event Withdraw(address indexed account, uint amount);
 
     /**
      * @dev Writes bid to mapping
@@ -30,7 +30,7 @@ interface IDecentralizerLottery {
     /**
      * @dev Function to withdraw reward for winner and owner to withdraw commission
      */
-    function withdraw(address payable to) external;
+    function withdraw() external;
 
     /**
      * @dev Function to restart lottery if amount of participants is zero

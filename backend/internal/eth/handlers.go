@@ -45,7 +45,7 @@ func (e *EthereumServer) RoundHandler(w http.ResponseWriter, r *http.Request) {
 		Context: context.Background(),
 	}
 
-	logs, err := e.http.inst.FilterBid(opts, nil)
+	logs, err := e.http.inst.FilterBid(opts, nil, nil)
 	if err != nil {
 		e.logger.Error(err)
 		setHttpError(w, err.Error(), http.StatusInternalServerError)
@@ -108,7 +108,7 @@ func (e *EthereumServer) WinnerHandler(w http.ResponseWriter, r *http.Request) {
 		Context: context.Background(),
 	}
 
-	logs, err := e.http.inst.FilterWinnerSelected(opts, nil)
+	logs, err := e.http.inst.FilterWinnerSelected(opts, nil, nil)
 	if err != nil {
 		e.logger.Error(err)
 		setHttpError(w, err.Error(), http.StatusInternalServerError)
@@ -152,7 +152,7 @@ func (e *EthereumServer) AllTimeRewardHander(w http.ResponseWriter, r *http.Requ
 		Context: context.Background(),
 	}
 
-	logs, err := e.http.inst.FilterWinnerSelected(opts, nil)
+	logs, err := e.http.inst.FilterWinnerSelected(opts, nil, nil)
 	allTImeReward := new(big.Int)
 
 	for logs.Next() {

@@ -10,8 +10,8 @@ import (
 )
 
 func (e *EthereumServer) SubscribeBidEvent(ctx context.Context) {
-	ch := make(chan *lottery.ContractBid)
-	event, err := e.wss.inst.WatchBid(&bind.WatchOpts{}, ch, []common.Address{})
+	ch := make(chan *lottery.LotteryBid)
+	event, err := e.wss.inst.WatchBid(&bind.WatchOpts{}, ch, []common.Address{}, nil)
 	if err != nil {
 		e.logger.Error(err)
 		return
