@@ -63,7 +63,8 @@ describe("DecentralizedLottery contract", function() {
         let addedAddressed = new Map<string, number>();
         let totalParticipants = 0;
         let totalWeight = 0;
-        // 1. participants should be buy tickets
+
+        // 1. participants should be able to bid()
         for (const participant of parts) {
             const _part = new Participant(participant, Math.floor(Math.random() * (10 + 1)) + 1);
             participants.push(_part);
@@ -71,7 +72,7 @@ describe("DecentralizedLottery contract", function() {
 
             await contract.connect(_part.signer).bid(_part.ticketsNumber, {
                 value: weiValue,
-            })
+            });
             
             totalWeight += _part.ticketsNumber;
         }
@@ -99,9 +100,21 @@ describe("DecentralizedLottery contract", function() {
         await ethers.provider.send("evm_increaseTime", [60 * 60 * 26]);
         await ethers.provider.send("evm_mine")
 
+        // 3. try to bid() if time is over
+        try {
+            const weiValue = ethers.toBigInt(participants[0].ticketsNumber) * contractDeployData.ticketPrice;
+            await contract.connect(participants[0].signer).bid(participants[0].ticketsNumber, {
+                value: weiValue,
+            });
+
+            expect(false).to.be.eq(true);
+        } catch {}
+
+        // 4. try to start
         const tx = await contract.start()
         await tx.wait()
 
+        // 5. withdraw
         const getWinnerSelectedEvent = async () => {
             const eventFilter = contract.filters.WinnerSelected();
             const events = await contract.queryFilter(eventFilter, 0, "latest");
@@ -136,7 +149,7 @@ describe("DecentralizedLottery contract", function() {
 
         expect(ownerBalanceAfter - ownerBalanceBefore).to.be.greaterThan(ownerFee - contractDeployData.feePaidDelta);
 
-        // check that new round started
+        // 6. check that new round started
         const nextRound = await contract.round();
         expect(nextRound).to.be.eq(1);
 
@@ -147,5 +160,15 @@ describe("DecentralizedLottery contract", function() {
         expect(roundInfo.finished).to.be.eq(false);
 
         expect(await contract.getParticipantsNumber()).to.be.eq(0);
+
+        // 7. check the ability to bid() in new round
+        try {
+            const weiValue = ethers.toBigInt(participants[0].ticketsNumber) * contractDeployData.ticketPrice;
+            await contract.connect(participants[0].signer).bid(participants[0].ticketsNumber, {
+                value: weiValue,
+            });
+        } catch {
+            expect(false).to.be.eq(true);
+        }
     });
 })
