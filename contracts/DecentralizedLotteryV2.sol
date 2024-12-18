@@ -202,9 +202,15 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
 
 
     function deposit() external payable {
-        require(msg.value > 0, "deposit must be greater than 0");
-        balances[msg.sender] += msg.value;
-        emit Deposit(msg.sender, msg.value);
+        uint amount = msg.value;
+
+        // Check if the deposit amount is greater than 0
+        require(amount > 0, "deposit must be greater than 0");
+
+        // Add the deposited amount to the user's balance
+        balances[msg.sender] += amount;
+
+        emit Deposit(msg.sender, amount, block.timestamp);
     }
 
 }

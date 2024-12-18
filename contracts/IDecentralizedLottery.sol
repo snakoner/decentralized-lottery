@@ -10,7 +10,7 @@ interface IDecentralizedLottery {
     /**
     * @dev Emitted when account deposits cash
     */
-    event Deposit(address indexed user, uint amount);
+    event Deposit(address indexed account, uint amount);
 
     /**
      * @dev Emitted when owner picked winner
