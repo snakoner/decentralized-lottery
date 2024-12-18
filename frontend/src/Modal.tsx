@@ -29,7 +29,7 @@ const Modal: React.FC<ModalProps> = ({
                                          connected,
                                          browserProvider,// Added: Default is true, but can be toggled off
                                      }) => {
-    const [winnings, setWinnings] = useState<string>("0.0");
+    const [winnings, setWinnings] = useState<string>("0.0000");
     const [loading, setLoading] = useState<boolean>(false);
 
     const contractABI = [

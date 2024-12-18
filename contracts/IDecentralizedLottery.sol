@@ -8,6 +8,11 @@ interface IDecentralizedLottery {
     event Bid(address indexed account, uint amount, uint timestamp, uint indexed round);
 
     /**
+    * @dev Emitted when account deposits cash
+    */
+    event Deposit(address indexed user, uint amount);
+
+    /**
      * @dev Emitted when owner picked winner
      */
     event WinnerSelected(address indexed account, uint amount, uint indexed round);

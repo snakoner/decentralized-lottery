@@ -199,4 +199,12 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
 
         emit Bid(msg.sender, amount, block.timestamp, round);
     }
+
+
+    function deposit() external payable {
+        require(msg.value > 0, "deposit must be greater than 0");
+        balances[msg.sender] += msg.value;
+        emit Deposit(msg.sender, msg.value);
+    }
+
 }
