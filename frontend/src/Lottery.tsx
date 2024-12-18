@@ -5,7 +5,7 @@ import './index.css';
 import "./Modal.css";
 import robotLogo from "./assets/robot2.jpeg";
 import ParticipantsList from "./ParticipantsList.tsx";
-import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS } from './constants.tsx';
+import { ALCHEMY_RPC_URL, CONTRACT_ABI, CONTRACT_ADDRESS } from './constants.tsx';
 
 const Modal = ({ isOpen, onClose, modalContent }) => {
     if (!isOpen) return null; // Не отображаем, если окно закрыто
@@ -54,22 +54,9 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
 
-    const contractABI = [
-        "function getTimeLeft() external view returns (uint)",
-        "function getParticipantsNum() external view returns (uint)",
-        //"function getParticipants() external view returns (address)",
-        "function participants(uint256) external view returns (address)",
-        "function getUnlockedBalance(address account) external view returns (uint)",
-        "function getTicketNum(address account) external view returns (uint)",
-        "function ticketPrice() public view returns (uint)",
-        "function round() public view returns (uint)",        
-        "function bid(uint amount) external payable",
-        "function withdraw(address payable _to) external",
-    ];
-
     const browserProvider = new ethers.BrowserProvider(window.ethereum);
     const providerRpc = new ethers.JsonRpcProvider(ALCHEMY_RPC_URL);
-    const contractRpc = new ethers.Contract(CONTRACT_ADDRESS, contractABI, providerRpc);
+    const contractRpc = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, providerRpc);
 
     const formatTime = (seconds: number) => {
         const hrs = Math.floor(seconds / 3600);
@@ -94,7 +81,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
         console.log("beginning operation");
         try {
             const tempList: string[] = [];
-            const num: bigint = await contractRpc.getParticipantsNum();
+            const num: bigint = await contractRpc.getParticipantsNumber();
             console.log("Number received: ", num);
             setParticipants(Number(num));
             // Fetch participants list
@@ -120,24 +107,32 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
         setTicketPrice(ethers.formatEther(num) + " ETH");
     }
 
-    // const getRound = async() => {
-    //     const num: bigint = await contractRpc.round();
-    //     return num;
-    // }
+    const getRound = async() => {
+        try {
+            const num: bigint = await contractRpc.round();
+            return num;    
+        } catch (error) {
+            console.log(error);
+        }
+
+        return 0;
+    }
 
     const getTicketsByUser = async() => {
-        // let _account;
-        // _account = await getAccount();
-        
-        if (account !== null) {
-            const num: bigint = await contractRpc.getTicketNum(account);
-            setTicketNum(Number(num));
-        }
+        try {
+            if (account !== null) {
+                console.log("getTicketsByUser(): ", await getRound(), account);
+                const num: bigint = await contractRpc.weights(await getRound(), account);
+                setTicketNum(Number(num));
+            }    
+        } catch (error) {
+            console.log(error);
+        }    
     }
 
     const getBalanceToWithdraw = async() => {
         if (account !== null) {
-            const num: bigint = await contractRpc.getUnlockedBalance(account);
+            const num: bigint = await contractRpc.balances(account);
             if (Number(num) == 0) {
                 setWithdrawButtonDisabled(true);
             }
@@ -154,7 +149,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
 
         try {
             const signer = await browserProvider.getSigner();
-            const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
+            const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
             const tx = await contract.withdraw(account);
             await tx.wait();
             getBalanceToWithdraw();
@@ -188,7 +183,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
         console.log(txParams);
         // postBuyTicket(account, ticketNumber);
         const signer = await browserProvider.getSigner();
-        const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
         try {
             setLoading(true);
             const tx = await contract.bid(ethers.toBigInt(ticketNumber), txParams);        
