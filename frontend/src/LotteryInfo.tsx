@@ -6,7 +6,7 @@ import ethereumLogo from "./assets/eth.png";
 import { float } from "hardhat/internal/core/params/argumentTypes";
 
 const LotteryInfo = () => {
-    const [allTimeReward, setAllTimeReward] = useState<string|null>(null);
+    const [allTimeReward, setAllTimeReward] = useState<string|null>("0");
     const getAllTimeReward = async() => {
         try {
             const response = await fetch("http://0.0.0.0:8000/all-time-reward", {
