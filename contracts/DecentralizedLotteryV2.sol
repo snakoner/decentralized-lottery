@@ -9,7 +9,7 @@ import "./IDecentralizedLottery.sol";
  * @dev A lottery smart contract where participants buy tickets, and a random winner is selected.
  * The owner collects a fee, and the winner receives the prize pool.
  */
-contract DecentralizedLottery is IDecentralizerLottery, Ownable {
+contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
     // Constants
     uint constant MAX_OWNER_FEE = 2; // Maximum allowable owner fee in percentage.
     uint constant MIN_DURATION = 1 days; // Minimum duration for a lottery round.
@@ -18,14 +18,34 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
     uint public endTime; // Timestamp when the current lottery round ends.
     uint public duration; // Duration of a single lottery round.
     uint public round; // Current lottery round number.
-    uint public totalBid; // Total amount of ETH collected in the current round.
     uint immutable public ticketPrice; // Price of a single lottery ticket.
     uint immutable public ownerFee; // Fee percentage taken by the owner.
-    uint public participantsNum; // Number of unique participants in the current round.
-    address[] public participants; // Array of participant addresses for the current round.
-
     mapping (address => uint) public balances; // Tracks withdrawable balances of users (winner/owner).
-    mapping (address => mapping(uint => uint)) ticketNum; // Tracks the number of tickets per participant per round.
+    mapping (uint => mapping (address => uint)) public weights;
+    mapping (uint => mapping (address => bool)) participantExist;
+    mapping (uint => uint) public totalWeight;
+    address[] public participants;
+
+    // Modifiers
+    modifier enoughEthersSent(uint amount) {
+        require(msg.value >= amount * ticketPrice, "not enough ether");
+        _;
+    }
+
+    modifier lotteryNotFinished() {
+        require(block.timestamp < endTime, "lottery already finished");
+        _;
+    }
+
+    modifier lotteryFinished() {
+        require(block.timestamp >= endTime, "lottery not finished");
+        _;
+    }
+
+    modifier validRound(uint _round) {
+        require(_round <= round, "invalid round");
+        _;
+    }
 
     /**
      * @dev Contract constructor initializes lottery parameters.
@@ -47,47 +67,23 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
         endTime = block.timestamp + _duration;
     }
 
-    // Modifiers
-    modifier enoughEthersSent(uint amount) {
-        require(msg.value >= amount * ticketPrice, "not enough ether");
-        _;
-    }
-
-    modifier lotteryNotFinished() {
-        require(block.timestamp < endTime, "lottery already finished");
-        _;
-    }
-
-    modifier lotteryFinished() {
-        require(block.timestamp >= endTime, "lottery not finished");
-        _;
-    }
 
     /**
      * @dev Allows users to buy lottery tickets by sending ETH.
      * @param amount Number of tickets the user wants to purchase.
      */
-    function bid(uint amount) 
-        external 
-        payable 
-        enoughEthersSent(amount) 
-        lotteryNotFinished 
-    {
+    function bid(uint amount) external payable enoughEthersSent(amount) lotteryNotFinished {
         uint refund = msg.value - amount * ticketPrice;
         if (refund > 0) {
             payable(msg.sender).transfer(refund);
         }
 
-        for (uint i = 0; i < amount; i++) {
+        if (!participantExist[round][msg.sender]) {
             participants.push(msg.sender);
         }
 
-        if (ticketNum[msg.sender][round] == 0) {
-            participantsNum++;
-        }
-
-        ticketNum[msg.sender][round] += amount;
-        totalBid += amount * ticketPrice;
+        totalWeight[round] += amount;
+        weights[round][msg.sender] += amount;
 
         emit Bid(msg.sender, amount, block.timestamp, round);
     }
@@ -121,52 +117,53 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
     function start() external onlyOwner lotteryFinished {
         require(participants.length > 0, "not enough participants"); 
 
-        uint winnerIdx = generateRandom() % participants.length; 
-        address winner = participants[winnerIdx];
+        uint randomValue = generateRandom() % totalWeight[round]; 
+        uint cumulativeWeight = 0;
+        address winner;
+
+        for (uint i = 0; i < participants.length; i++) {
+            cumulativeWeight += weights[round][participants[i]];
+            if (randomValue < cumulativeWeight) {
+                winner = participants[i];
+                break;
+            }
+        }
+
+        uint totalBid = totalWeight[round] * ticketPrice;
         uint fee = (totalBid * ownerFee) / 100;
         uint reward = totalBid - fee;
         
         balances[owner()] += fee;
         balances[winner] += reward;
-        totalBid = 0;
 
         emit WinnerSelected(winner, reward, round);
 
         round++;
         endTime = block.timestamp + duration;
+
         delete participants;
     }
 
     /**
      * @dev Allows a user to withdraw their available balance.
-     * @param _to Address to send the withdrawn balance.
      */
-    function withdraw(address payable _to) external {
+    function withdraw() external {
         require(balances[msg.sender] > 0, "nothing to withdraw");
+
         uint value = balances[msg.sender];
 
         balances[msg.sender] = 0;
-        _to.transfer(value);
+        payable(msg.sender).transfer(value);
 
-        emit Withdraw(msg.sender, _to, value);
+        emit Withdraw(msg.sender, value);
     }
 
     /**
-     * @dev Gets the number of tickets a user purchased in the current round.
-     * @param account Address of the user.
-     * @return Number of tickets.
+     * @dev Gets the number of participants in current round.
+     * @return Number of participants.
      */
-    function getTicketNum(address account) external view returns (uint) {
-        return ticketNum[account][round];
-    }
-
-    /**
-     * @dev Gets the withdrawable balance of a user.
-     * @param account Address of the user.
-     * @return Withdrawable balance.
-     */
-    function getUnlockedBalance(address account) external view returns (uint) {
-        return balances[account];
+    function getParticipantsNumber() external view returns (uint) {
+        return participants.length;
     }
 
     /**
@@ -180,4 +177,40 @@ contract DecentralizedLottery is IDecentralizerLottery, Ownable {
 
         return endTime - block.timestamp;
     }
+
+    // function getTotalWeight(uint _round) external validRound(_round) view returns (uint) {
+    //     return totalWeight[_round];
+    // }
+
+    function bidFromBalance(uint amount) external lotteryNotFinished {
+        uint value = amount * ticketPrice;
+        require(balances[msg.sender] >= value, "insufficient balance");
+        
+        unchecked {
+            balances[msg.sender] -= value;
+        }
+
+        if (!participantExist[round][msg.sender]) {
+            participants.push(msg.sender);
+        }
+
+        totalWeight[round] += amount;
+        weights[round][msg.sender] += amount;
+
+        emit Bid(msg.sender, amount, block.timestamp, round);
+    }
+
+
+    function deposit() external payable {
+        uint amount = msg.value;
+
+        // Check if the deposit amount is greater than 0
+        require(amount > 0, "deposit must be greater than 0");
+
+        // Add the deposited amount to the user's balance
+        balances[msg.sender] += amount;
+
+        emit Deposit(msg.sender, amount, block.timestamp);
+    }
+
 }

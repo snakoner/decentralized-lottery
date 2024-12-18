@@ -1,32 +1,12 @@
 import { loadFixture, ethers, expect } from "./setup";
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/src/signers";
 
-const _ticketPrice = ethers.parseEther("0.1");
-const _duration = 60 * 60 * 25; // 25 hours
-const _ownerCommission = 2;
-
-async function getRawLogs(contractAddress: string) {
-    const filter = {
-        address: contractAddress,
-        topics: [
-			ethers.id("event WinnerSelected(address indexed account, uint amount, uint round)"),
-			ethers.id("event Bid(address indexed account, uint amount, uint timestamp, uint round)"),
-        ],
-        fromBlock: 0,
-        toBlock: "latest",
-    };
-
-    const logs = await ethers.provider.getLogs(filter);
-	console.log("getRaw: ", logs.length)
-
-    logs.forEach((log) => {
-        console.log("Raw log:", log);
-    });
-}
-
-async function handleWinnerSelected(account: string, amount: bigint, round: bigint) {
-	console.log("WWWWW")
-}
+const contractDeployData = {
+	ticketPrice: ethers.parseEther("1.0"),
+	duration: 60 * 60 * 25, // 25 hours
+	ownerCommission: 2,
+	feePaidDelta: ethers.parseEther("0.01"),	
+};
 
 function getSignerByAddress(address: string, signers: HardhatEthersSigner[]) : HardhatEthersSigner {
 	let ret: HardhatEthersSigner = signers[0];
@@ -62,9 +42,10 @@ describe("DecentralizedLottery contract", function() {
 		console.log(ethers.formatUnits(await ethers.provider.getBalance(owner.address)));
         const Factory = await ethers.getContractFactory("DecentralizedLottery");
         const contract = await Factory.deploy(
-			_ownerCommission, 
-			_duration,
-			_ticketPrice);
+			contractDeployData.ownerCommission,
+			contractDeployData.duration,
+			contractDeployData.ticketPrice
+		);
 
 		await contract.waitForDeployment();
 
@@ -76,26 +57,27 @@ describe("DecentralizedLottery contract", function() {
         expect(contract.target).to.be.properAddress;
     });
 
-    it ("contract logic", async function() {
+    it ("should be finished", async function() {
         const {contract, owner, parts} = await loadFixture(deploy);
 		let participants: Participant[] = [];
 		let addedAddressed = new Map<string, number>();
-		let i = 0;
 		let totalParticipants = 0;
 
-		for (const part of parts) {
-			const _part = new Participant(part, Math.floor(Math.random() * (10 + 1)) + 1);
+		// 1. participants should be buy tickets
+		for (const participant of parts) {
+			const _part = new Participant(participant, Math.floor(Math.random() * (10 + 1)) + 1);
 			participants.push(_part);
-			const weiValue = ethers.toBigInt(_part.ticketsNumber) * _ticketPrice;
+			const weiValue = ethers.toBigInt(_part.ticketsNumber) * contractDeployData.ticketPrice;
 
 			await contract.connect(_part.signer).bid(_part.ticketsNumber, {
 				value: weiValue,
 			})
 
 			totalParticipants += _part.ticketsNumber;
-			// console.log(_part.getAddress(), _part.ticketsNumber)
 		}
 
+
+		let totalTickets = 0;
 		for (let i = 0; i < totalParticipants; i++) {
 			const address = await contract.participants(i);
 			const value = addedAddressed.get(address)
@@ -109,26 +91,53 @@ describe("DecentralizedLottery contract", function() {
 		
 		addedAddressed.forEach((value, key) => {
 			expect(value).to.be.eq(addedAddressed.get(key))
+			totalTickets += value;
 		})
 
+		// check that participant num is eq to number of participants
+		expect(await contract.participantsNum()).to.be.eq(participants.length);
+		// check that time is not over
 		expect(await contract.getTimeLeft()).not.to.be.eq(0)
 
-		// 26 hours
+		// 2. should be start lottery
 		await ethers.provider.send("evm_increaseTime", [60 * 60 * 26]);
 		await ethers.provider.send("evm_mine")
 
-		console.log("participants: ", await contract.participantsNum());
-
-		expect(await contract.getTimeLeft()).to.be.eq(0)
-
 		const tx = await contract.start()
 		await tx.wait()
-		
-		const _contract = new ethers.Contract(
-			await contract.getAddress(), 
-			["event WinnerSelected(address indexed account, uint amount, uint round)"],
-			ethers.provider)
 
-		_contract.on("WinnerSelected", handleWinnerSelected)
+		const getWinnerSelectedEvent = async () => {
+			const eventFilter = contract.filters.WinnerSelected();
+			const events = await contract.queryFilter(eventFilter, 0, "latest");
+			const winnerAddress = events[0].args[0];
+			const rewardWei = events[0].args[1];
+			const round = events[0].args[2];
+			
+			return {winnerAddress, rewardWei, round};
+		}
+
+		const {winnerAddress, rewardWei, round} = await getWinnerSelectedEvent();
+
+		const winner = getSignerByAddress(winnerAddress, parts)
+		const winnerBalanceBefore = await ethers.provider.getBalance(winner.address);
+
+		await contract.connect(winner).withdraw();
+
+		const winnerBalanceAfter = await ethers.provider.getBalance(winner.address);
+		const winnerBalanceChange = winnerBalanceAfter - winnerBalanceBefore;
+		const ownerFee = ethers.toBigInt(totalTickets) * contractDeployData.ticketPrice * (await contract.ownerFee()) / ethers.toBigInt(100);
+		const totalSum = ownerFee + winnerBalanceChange;
+
+		expect(totalSum).to.be.greaterThan(ethers.toBigInt(totalTickets) * contractDeployData.ticketPrice - contractDeployData.feePaidDelta);
+
+		const ownerBalanceBefore = await ethers.provider.getBalance(owner.address);
+		await contract.withdraw();
+		const ownerBalanceAfter = await ethers.provider.getBalance(owner.address);
+
+		expect(ownerBalanceAfter - ownerBalanceBefore).to.be.greaterThan(ownerFee - contractDeployData.feePaidDelta);
+
+		// check that new round started
+		expect(await contract.round()).to.be.eq(1);
+		expect(await contract.participantsNum()).to.be.eq(0);
 	});
 })

@@ -22,17 +22,17 @@ type Signer struct {
 type EthereumServer struct {
 	http struct {
 		cli  *ethclient.Client
-		inst *lottery.Contract
+		inst *lottery.Lottery
 	}
 	wss struct {
 		cli  *ethclient.Client
-		inst *lottery.Contract
+		inst *lottery.Lottery
 	}
 	cli             *ethclient.Client
 	logger          *logrus.Logger
 	contractAddress common.Address
 	signer          *Signer
-	newEvents       []*lottery.ContractBid
+	newEvents       []*lottery.LotteryBid
 }
 
 func New(config *config.Config) (*EthereumServer, error) {
@@ -47,14 +47,14 @@ func New(config *config.Config) (*EthereumServer, error) {
 		return nil, err
 	}
 
-	httpInst, err := lottery.NewContract(address, httpCli)
+	httpInst, err := lottery.NewLottery(address, httpCli)
 
 	wssCli, err := ethclient.Dial(fmt.Sprintf("%s%s", config.Infura.WssProvider, config.Private.Provider))
 	if err != nil {
 		return nil, err
 	}
 
-	wssInst, err := lottery.NewContract(address, wssCli)
+	wssInst, err := lottery.NewLottery(address, wssCli)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func New(config *config.Config) (*EthereumServer, error) {
 		},
 		http: struct {
 			cli  *ethclient.Client
-			inst *lottery.Contract
+			inst *lottery.Lottery
 		}{
 			cli:  httpCli,
 			inst: httpInst,
@@ -75,7 +75,7 @@ func New(config *config.Config) (*EthereumServer, error) {
 
 		wss: struct {
 			cli  *ethclient.Client
-			inst *lottery.Contract
+			inst *lottery.Lottery
 		}{
 			cli:  wssCli,
 			inst: wssInst,
@@ -93,7 +93,7 @@ func (e *EthereumServer) getTimeLeft() (int64, error) {
 }
 
 func (e *EthereumServer) getParticipantsNum() (int64, error) {
-	res, err := e.http.inst.GetParticipantsNum(&bind.CallOpts{})
+	res, err := e.http.inst.GetParticipantsNumber(&bind.CallOpts{})
 	if err != nil {
 		return 0, err
 	}

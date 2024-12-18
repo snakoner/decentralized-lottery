@@ -9,11 +9,11 @@
         "port": "8000"
     },
     "infura": {
-        "http-provider": "https://eth-sepolia.g.alchemy.com/v2/",
-        "wss-provider": "wss://eth-sepolia.g.alchemy.com/v2/"
+        "http-provider": "https://eth-holesky.g.alchemy.com/v2/",
+        "wss-provider": "wss://eth-holesky.g.alchemy.com/v2/"
     },
     "contract": {
-        "name": "DecentralizedLottery",
-        "address": "0xE8f0b7144F2be28FE6Af69f15658d7b197Bf9f11"
+        "name": "DecentralizedLotteryV2",
+        "address": "0x5B4Ac9c70E46e787df176c31d152c582Af27be76"
     }
 }

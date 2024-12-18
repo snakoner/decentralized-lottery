@@ -1,8 +1,19 @@
 .PHONY: build
 .default := build
 
+CONTRACT_NAME = DecentralizedLotteryV2
+
 build:
 	docker-compose build
+
+generate_go_bindings:
+	solc --base-path . --include-path node_modules --overwrite --abi --bin -o build contracts/$(CONTRACT_NAME).sol
+	abigen --bin=build/$(CONTRACT_NAME).bin --abi=build/$(CONTRACT_NAME).abi --pkg=lottery --out=build/lottery.go
+	cp ./build/lottery.go ./backend/internal/lottery
+
+deploy:
+	rm -rf ./ignition/deployments
+	npx hardhat ignition deploy ./ignition/modules/Lottery.ts --network holesky
 
 up:
 	docker-compose up

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import copyLogo from "./assets/copy.svg";
 import etherscanLogo from "./assets/etherscan.svg";
@@ -21,10 +21,64 @@ const Modal: React.FC<ModalProps> = ({
                                          walletBalance,
                                          isOpen,
                                          onClose,
+                                         onWithdraw, // Withdraw action
                                          onDisconnect,
-                                         title, // Added: Dynamic title
-                                         showDisconnect = true, // Added: Default is true, but can be toggled off
+                                         title,
+                                         content,// Added: Dynamic title
+                                         showDisconnect = true,
+                                         connected,
+                                         browserProvider,// Added: Default is true, but can be toggled off
                                      }) => {
+    const [winnings, setWinnings] = useState<string>("0.0000");
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const contractABI = [
+        "function getUnlockedBalance(address account) external view returns (uint)",
+        "function withdrawWinnings() external", // Assuming this is the withdraw function
+    ];
+
+    // Fetch Winnings
+    const getWinnings = async () => {
+        if (connected && account) {
+            try {
+                const signer = await browserProvider.getSigner();
+                const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
+                const num = await contract.getUnlockedBalance(account);
+                setWinnings(ethers.formatUnits(num, "ether"));
+            } catch (err) {
+                console.error("Error fetching winnings:", err);
+            }
+        }
+    };
+
+    // Withdraw winnings function
+    const withdraw = async () => {
+        if (!connected) {
+            alert("Connect your wallet to withdraw");
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const signer = await browserProvider.getSigner();
+            const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
+            const tx = await contract.withdraw(account); // Using withdraw function
+            await tx.wait();
+            alert("Winnings successfully withdrawn!");
+            getWinnings(); // Refresh winnings
+        } catch (error) {
+            console.error("Error during withdrawal:", error);
+            alert("Failed to withdraw winnings. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    useEffect(() => {
+        getWinnings();
+    }, [connected, account]);
+
     if (!isOpen) return null;
 
     const copyWalletAddress = async () => {
@@ -47,6 +101,8 @@ const Modal: React.FC<ModalProps> = ({
         }
     };
 
+
+
     return ReactDOM.createPortal(
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -66,6 +122,7 @@ const Modal: React.FC<ModalProps> = ({
                 </div>
 
                 {/* Balance Section */}
+                {showDisconnect && onDisconnect && (
                 <div className="modal-wallet-balance">
                     <p id="wallet-balance">
                         <strong>Balance:</strong> {walletBalance}
@@ -75,6 +132,26 @@ const Modal: React.FC<ModalProps> = ({
                         style={{ backgroundImage: `url(${ethLogo})` }}
                     ></div>
                 </div>
+                )}
+                {/* My Winnings */}
+                {showDisconnect && onDisconnect && (
+                <div className="modal-winnings">
+                    <p><strong>💰 My winnings:</strong> {winnings} ETH</p>
+                    <button
+                        className="lottery-button"
+                        onClick={withdraw}
+                        disabled={loading}
+                    >
+                        {loading ? "Withdrawing..." : "Withdraw"}
+                    </button>
+                </div>
+                )}
+
+                {/* Dynamic Content */}
+                <div className="modal-dynamic-content">
+                    {content}
+                </div>
+
 
                 {/* Copy and Etherscan Links */}
                 <div className="modal-wallet-copy-show">

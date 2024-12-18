@@ -55,3 +55,4 @@ node_modules/.cache/
 # Project-specific
 ignition/deployments
 backend/app
+.gitignore:Zone.Identifier

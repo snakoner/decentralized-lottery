@@ -35,7 +35,7 @@ const WinnersList: React.FC = () => {
         for (let i = 0; i < currentRound; i++) {
             try {
                 console.log('try fetching round: ', i);
-                const response = await fetch(`http://0.0.0.0:8000/winner/${i}`);
+                const response = await fetch(`http://localhost:8000/winner/${i}`);
                 if (!response.ok) {
                     console.error(`Error fetching winner for round ${i}:`, response.statusText);
                     continue;
@@ -80,8 +80,7 @@ const WinnersList: React.FC = () => {
     };
 
     return (
-        <div className='main-container'>
-        <div className="lottery-container" style={{margin:"0 auto"}}>
+        <div className="lottery-container">
             <h1 className="lottery-title">Past Winners</h1>
             <ul className="list">
                 {winners.map((winner, index) => (
@@ -103,14 +102,12 @@ const WinnersList: React.FC = () => {
                     title="Winner Details"
                     content={
                         <div>
-                            <p><strong>Round:</strong> {selectedWinner.round}</p>
-                            <p><strong>Address:</strong> {selectedWinner.address}</p>
-                            <p><strong>Prize:</strong> {selectedWinner.prize}</p>
+                            <p><strong>Round:</strong> {selectedWinner?.round}</p>
+                            <p><strong>Winnings:</strong> {selectedWinner?.prize}</p>
                         </div>
                     }
                 />
             )}
-        </div>
         </div>
     );
 };

@@ -1,12 +1,61 @@
 .header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    /* Layout */
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    /* Spacing */
     padding: 10px 20px;
-    background-color: #282c34;
+
+    /* Styling */
+    background-color: #1e1f26; /* Slightly darker for a modern look */
     color: #ffffff;
-    border-bottom: 2px solid #444;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid #333; /* Subtle bottom border */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+    /* Smooth transitions for hover effects */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header:hover {
+    background-color: #2a2d36; /* Lighter hover effect */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.header h1, .header nav {
+    margin: 0;
+    padding: 0;
+}
+
+.header nav a {
+    color: #ffffff;
+    text-decoration: none;
+    margin-left: 15px;
+
+    /* Smooth hover */
+    transition: color 0.3s ease;
+}
+
+.header nav a:hover {
+    color: #4db6ac; /* Nice accent color */
+    text-decoration: underline;
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        text-align: center;
+        padding: 15px 10px;
+    }
+
+    .header nav a {
+        margin: 10px 5px;
+    }
 }
 
 .left-section {
