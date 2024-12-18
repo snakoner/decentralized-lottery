@@ -10,7 +10,7 @@
     },
     "infura": {
         "http-provider": "https://eth-holesky.g.alchemy.com/v2/",
-        "wss-provider": "wss://eth-sepolia.g.alchemy.com/v2/"
+        "wss-provider": "wss://eth-holesky.g.alchemy.com/v2/"
     },
     "contract": {
         "name": "DecentralizedLotteryV2",
