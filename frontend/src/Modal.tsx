@@ -135,7 +135,7 @@ const Modal: React.FC<ModalProps> = ({
                 )}
                 {/* My Winnings */}
                 {showDisconnect && onDisconnect && (
-                <div className="modal-winnings">
+                <div className="modal-winnings" style = {{marginLeft: "30px"}}>
                     <p><strong>💰 My winnings:</strong> {winnings} ETH</p>
                     <button
                         className="lottery-button"
@@ -148,7 +148,7 @@ const Modal: React.FC<ModalProps> = ({
                 )}
 
                 {/* Dynamic Content */}
-                <div className="modal-dynamic-content">
+                <div className="modal-dynamic-content" style = {{marginLeft: "30px"}}>
                     {content}
                 </div>
 

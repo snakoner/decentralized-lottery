@@ -154,6 +154,11 @@ func (e *EthereumServer) AllTimeRewardHander(w http.ResponseWriter, r *http.Requ
 
 	logs, err := e.http.inst.FilterWinnerSelected(opts, nil, nil)
 	allTImeReward := new(big.Int)
+	if err != nil {
+		e.logger.Error(err)
+		setHttpError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	for logs.Next() {
 		if logs.Error() != nil {
