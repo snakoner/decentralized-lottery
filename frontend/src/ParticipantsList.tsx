@@ -1,76 +1,77 @@
-
 import React, { useEffect, useState, useMemo } from 'react';
-import Modal from "./Modal.tsx"; // Added: Import the Modal component
+import Modal from "./Modal.tsx"; // Import the Modal component
 import { ethers } from 'ethers';
 import { ALCHEMY_RPC_URL, CONTRACT_ABI, CONTRACT_ADDRESS } from './constants.tsx';
 
-const provider = new ethers.JsonRpcProvider(
-    ALCHEMY_RPC_URL
-);
+const provider = new ethers.JsonRpcProvider(ALCHEMY_RPC_URL);
 
 const ParticipantsList: React.FC = () => {
-    const [participants, setParticipants] = useState<{ address: string; bid: number }[]>([]);
-    const [modalIsOpen, setModalIsOpen] = useState<boolean>(false); // Added: State for modal visibility
-    const [selectedParticipant, setSelectedParticipant] = useState<{ address: string; bid: number } | null>(null); // Added: State to store selected participant
+    const [participants, setParticipants] = useState<{ address: string; tickets: number }[]>([]);
+    const [modalIsOpen, setModalIsOpen] = useState<boolean>(false); // Modal visibility state
+    const [selectedParticipant, setSelectedParticipant] = useState<{ address: string; tickets: number } | null>(null);
 
+    // Instantiate the contract
     const contract = useMemo(() => new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider), []);
 
+    // Fetch participants and their ticket counts
     const fetchParticipants = async () => {
         try {
             console.log("Fetching participants...");
             const participantsCount: bigint = await contract.getParticipantsNumber();
-            const participantMap = new Map<string, number>();
+            const currentRound: bigint = await contract.round(); // Fetch the current round
 
-            for (let i = 0; i < participantsCount; i++) {
-                const participant = await contract.participants(i);
-                participantMap.set(
-                    participant,
-                    (participantMap.get(participant) || 0) + 1
-                );
+            const participantMap = new Map<string, number>(); // Use a Map to ensure uniqueness
+
+            for (let i = 0; i < Number(participantsCount); i++) {
+                const participantAddress: string = await contract.participants(i);
+                const ticketCount: bigint = await contract.weights(currentRound, participantAddress);
+
+                // Add the participant and ticket count to the Map
+                participantMap.set(participantAddress, Number(ticketCount));
             }
 
-            const participantsArray = Array.from(participantMap.entries()).map(([address, bid]) => ({
+            // Convert the Map to an array for rendering
+            const participantsArray = Array.from(participantMap.entries()).map(([address, tickets]) => ({
                 address,
-                bid,
+                tickets,
             }));
 
-            setParticipants(participantsArray);
-            console.log("Updated Participants List:", participantsArray);
+            setParticipants(participantsArray); // Update state with unique participants
+            console.log("Deduplicated Participants List:", participantsArray);
         } catch (error) {
             console.error("Error fetching participants:", error);
         }
     };
-
     useEffect(() => {
-
         fetchParticipants();
 
+        // Listen for "Bid" events to update participants list in real-time
         const handleBidEvent = () => {
             console.log("Bid event detected, refetching participants...");
             fetchParticipants();
         };
 
-        // Set up the listener
         contract.on("Bid", handleBidEvent);
 
-        // Cleanup listener on component unmount
+        // Cleanup listener on unmount
         return () => {
             contract.off("Bid", handleBidEvent);
         };
     }, [contract]);
 
+    // Truncate address for cleaner display
     const truncateAddress = (address: string) => {
         return `${address.slice(0, 6)}...${address.slice(-4)}`.toLowerCase();
     };
 
-    // Added: Function to show modal with participant details
-    const showParticipantInfo = (participant: { address: string; bid: number }) => {
+    // Open the modal with selected participant's details
+    const showParticipantInfo = (participant: { address: string; tickets: number }) => {
         console.log("Opening modal for participant:", participant);
         setSelectedParticipant(participant);
         setModalIsOpen(true);
     };
 
-    // Added: Function to hide the modal
+    // Close the modal
     const hideParticipantInfo = () => {
         setModalIsOpen(false);
         setSelectedParticipant(null);
@@ -84,24 +85,25 @@ const ParticipantsList: React.FC = () => {
                     <li
                         key={index}
                         className="list-item"
-                        onClick={() => showParticipantInfo(participant)} // Updated: Show modal on click
-                        style={{marginBottom: "8px", cursor: "pointer"}}
+                        onClick={() => showParticipantInfo(participant)}
+                        style={{ marginBottom: "8px", cursor: "pointer" }}
                     >
-                        {truncateAddress(participant.address)} - {participant.bid} ticket(s)
+                        {truncateAddress(participant.address)} - 🎟️ {participant.tickets} ticket(s)
                     </li>
                 ))}
             </ul>
-            {/* Added: Modal for showing participant details */}
+
+            {/* Modal to display participant details */}
             <Modal
                 account={selectedParticipant?.address || ""}
-                walletBalance={`${selectedParticipant?.bid || 0} 🎟️ Tickets`}
+                walletBalance={`${selectedParticipant?.tickets || 0} 🎟️ Tickets`}
                 isOpen={modalIsOpen}
                 onClose={hideParticipantInfo}
                 onDisconnect={() => {}} // No disconnect functionality for participants
                 title="Participant Details"
                 content={
                     <div>
-                        <p>🎟️ <strong>Tickets bought:</strong> {selectedParticipant?.bid} ticket(s)</p>
+                        <p>🎟️ <strong>Tickets bought:</strong> {selectedParticipant?.tickets} ticket(s)</p>
                     </div>
                 }// Updated: Title for participants
                 showDisconnect={false} // Updated: Hide Disconnect button
