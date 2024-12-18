@@ -1,165 +1,160 @@
+/* Основной контейнер */
 .lottery-welcome {
     width: 80%;
     min-width: 960px;
-    /* background-color: #126df1; */
-	background: linear-gradient(135deg, #6a11cb, #2575fc);
+    height: auto;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
     border-radius: 10px;
     margin: 0 auto;
     margin-top: 20px;
     display: flex;
-    align-items: stretch; /* Make all children take equal height */
-    height: auto;
-}
-
-.lottery-welcome img {
-    position: relative;
-    float: right;
-    width: 30%;
-    border-radius: 10px;
-    background-size: cover;
-    -webkit-mask-image: linear-gradient(to left, rgb(158, 125, 125), transparent);
-    background-color: #a3a3a3;
-    padding-top: 0;
-}
-
-.lottery-welcome-left-side {
-    position: relative;
-    width: 70%;
-    float: left;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Vertically centers content */
+    flex-wrap: wrap;
+    justify-content: space-between;
     padding: 20px;
 }
 
+/* Изображение */
+.lottery-welcome img {
+    width: 100%;
+    max-width: 300px; /* Ограничиваем максимальную ширину изображения */
+    border-radius: 10px;
+    background-size: cover;
+    -webkit-mask-image: radial-gradient(circle, rgba(255, 255, 255, 1) 100%, rgba(255, 255, 255, 0) 80%);
+    mask-image: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 80%);
+    background-color: #a3a3a3;
+}
+
+/* Левый блок */
+.lottery-welcome-left-side {
+    flex: 1 1 60%; /* 60% на больших экранах */
+    margin-right: 20px;
+}
+
+/* Заголовок */
 .lottery-welcome-label {
-    position: relative;
-    width: 90%;
-    /* height: 100px; */
+    width: 100%;
     margin-top: 20px;
-    margin-left: 20px;
     text-align: left;
-    float: left;
 }
 
 .lottery-welcome-label p {
     padding-top: 20px;
-    padding-left: 20px;
-    font-size: 50px;
+    font-size: 2em;
     font-weight: 700;
     color: white;
 }
 
+/* Описание */
 .lottery-welcome-description {
-    margin-left: 40px;
     margin-top: 10px;
-    position: relative;
-    width: 90%;
-    min-width: 400px;
-    overflow: hidden;
-    /* background-color: #a3a3a3; */
-    float: left;
+    width: 100%;
     text-align: left;
 }
 
 .lottery-welcome-description p {
-    font-size: 24px;
+    font-size: 1.2em;
     color: rgb(200, 200, 200);
 }
 
+/* Статистика */
 .lottery-welcome-statistics {
-    position: relative;
-    width: 70%;
-    min-width: 500px;
-    height: 100px;
-    /* background-color: aqua; */
-    float: left;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
     margin-top: 40px;
-    margin-left: 40px;
-    display: inline-block;
 }
 
-
+/* Статистическая информация */
 .lottery-welcome-statistics-info {
     width: 48%;
-    height: 100%;
+    height: 100px;
     background-color: rgb(255, 255, 255);
     border-radius: 10px;
-    float: left;
-    display: inline-block;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease, transform 0.3s ease;  
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    display: inline-block;
 }
 
 .lottery-welcome-statistics-info:hover {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-    transform: translateY(-5px);  
+    transform: translateY(-5px);
 }
 
+/* Логотип статистики */
 .lottery-welcome-statistics-info-logo {
-    position: relative;
     width: 80px;
     height: 80px;
-    float: left;
     margin-top: 10px;
-    margin-left: 10px;
+    margin-left: 50px;
     background-size: cover;
     background-position: center;
-    background-repeat: no-repeat;
-    /* background-color: #126df1; */
+    float: left;
 }
 
+/* Текст статистики */
 .lottery-welcome-statistics-info-text {
-    width: 60%;
-    height: 30px;
-    /* background-color: #a3a3a3; */
+    width: 70%;
+    height: 40px;
+    font-size: 1.3em;
+    color: black;
+    font-weight: 700;
     float: right;
     text-align: left;
-    margin-top: 10px;
-}
-
-.lottery-welcome-statistics-info-text p{
-    color: black;
-    font-size: 20px;
-    font-weight: 700;
-    padding-top: 10px;
+    margin-top: 30px;
 }
 
 .lottery-welcome-statistics-info-total-reward {
-    width: 60%;
-    height: 30px;
-    float: right;
-    text-align: left;
-    margin-top: 5px;
-}
-
-.lottery-welcome-statistics-info-total-reward p{
+    font-size: 1.2em;
     color: black;
-    font-size: 18px;
     padding-top: 10px;
 }
 
+/* Мобильная версия (до 768px) */
+@media (max-width: 960px) {
+    .lottery-welcome {
+        width: 90%;
+        flex-direction: column;
+        padding: 10px;
+    }
 
-.lottery-welcome-statistics-info-text-powered {
-    width: 60%;
-    /* height: 30px; */
-    /* background-color: #a3a3a3; */
-    float: left;
-    text-align: left;
-    /* margin-top: 30px; */
-    margin-left: 10px;
-}
+    .lottery-welcome img {
+        width: 80%;
+        max-width: 100%;
+    }
 
-.lottery-welcome-statistics-info-text-powered p {
-    padding-top: 26px;
-    font-size: 1.2em;
-    color: black;
-    font-weight: 600;
-}
+    .lottery-welcome-left-side {
+        flex: 1 1 100%;
+        margin-right: 0;
+    }
 
-.lottery-welcome-image {
-    height: auto; /* Keeps image proportional */
-    max-height: 100%; /* Prevents image overflow */
-    width: auto;
-    object-fit: contain; /* Ensures image fits within container */
+    .lottery-welcome-label p {
+        font-size: 1.5em;
+    }
+
+    .lottery-welcome-description p {
+        font-size: 1.1em;
+    }
+
+    .lottery-welcome-statistics {
+        flex-direction: column;
+        margin-top: 20px;
+    }
+
+    .lottery-welcome-statistics-info {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .lottery-welcome-statistics-info-logo {
+        width: 60px;
+        height: 60px;
+    }
+
+    .lottery-welcome-statistics-info-text {
+        font-size: 1em;
+    }
+
+    .lottery-welcome-statistics-info-total-reward {
+        font-size: 1.1em;
+    }
 }
