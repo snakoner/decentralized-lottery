@@ -29,6 +29,7 @@ Before running this project, ensure you have the following installed:
 - npm or yarn
 - Hardhat CLI
 - MetaMask browser extension
+- Docker
 
 ### Clone the Repository
 
