@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
+import { ethers } from "ethers";
 import copyLogo from "./assets/copy.svg";
 import etherscanLogo from "./assets/etherscan.svg";
 import ethLogo from "./assets/eth.png";
 
+
 import "./Modal.css";
+import { CONTRACT_ADDRESS, CONTRACT_ABI, localStorageWalletConnectHandler } from "./constants.tsx";
 
 interface ModalProps {
     account: string;
@@ -14,6 +17,7 @@ interface ModalProps {
     onDisconnect?: () => void; // Optional onDisconnect function
     title: string; // Added: Allows dynamic titles, e.g., "Your Wallet" or "Participant Details"
     showDisconnect?: boolean; // Added: Controls the visibility of the Disconnect button
+    browserProvider?: ethers.BrowserProvider
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -32,18 +36,16 @@ const Modal: React.FC<ModalProps> = ({
     const [winnings, setWinnings] = useState<string>("0.0000");
     const [loading, setLoading] = useState<boolean>(false);
 
-    const contractABI = [
-        "function getUnlockedBalance(address account) external view returns (uint)",
-        "function withdrawWinnings() external", // Assuming this is the withdraw function
-    ];
-
     // Fetch Winnings
     const getWinnings = async () => {
-        if (connected && account) {
+        if (localStorageWalletConnectHandler() && account) {
             try {
+                if (browserProvider === undefined) {
+                    browserProvider = new ethers.BrowserProvider(window.ethereum);
+                }
                 const signer = await browserProvider.getSigner();
-                const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
-                const num = await contract.getUnlockedBalance(account);
+                const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                const num = await contract.balances(account);
                 setWinnings(ethers.formatUnits(num, "ether"));
             } catch (err) {
                 console.error("Error fetching winnings:", err);
@@ -53,16 +55,20 @@ const Modal: React.FC<ModalProps> = ({
 
     // Withdraw winnings function
     const withdraw = async () => {
-        if (!connected) {
+        if (!localStorageWalletConnectHandler()) {
             alert("Connect your wallet to withdraw");
             return;
         }
 
         try {
             setLoading(true);
+            if (browserProvider === undefined) {
+                browserProvider = new ethers.BrowserProvider(window.ethereum);
+            }
+
             const signer = await browserProvider.getSigner();
-            const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, signer);
-            const tx = await contract.withdraw(account); // Using withdraw function
+            const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+            const tx = await contract.withdraw(); // Using withdraw function
             await tx.wait();
             alert("Winnings successfully withdrawn!");
             getWinnings(); // Refresh winnings
