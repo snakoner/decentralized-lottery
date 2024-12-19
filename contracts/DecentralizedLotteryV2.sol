@@ -178,10 +178,9 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         return endTime - block.timestamp;
     }
 
-    // function getTotalWeight(uint _round) external validRound(_round) view returns (uint) {
-    //     return totalWeight[_round];
-    // }
-
+    /**
+     * @dev Allows users to buy lottery tickets by changing internal ETH balance.
+     */
     function bidFromBalance(uint amount) external lotteryNotFinished {
         uint value = amount * ticketPrice;
         require(balances[msg.sender] >= value, "insufficient balance");
@@ -200,17 +199,17 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         emit Bid(msg.sender, amount, block.timestamp, round);
     }
 
-
+    /**
+     * @dev Allows users to deposit ETH to balance.
+     */
     function deposit() external payable {
-        uint amount = msg.value;
-
         // Check if the deposit amount is greater than 0
-        require(amount > 0, "deposit must be greater than 0");
+        require(msg.value > 0, "deposit must be greater than 0");
 
-        // Add the deposited amount to the user's balance
-        balances[msg.sender] += amount;
+        // Add the deposited msg.value to the user's balance
+        balances[msg.sender] += msg.value;
 
-        emit Deposit(msg.sender, amount, block.timestamp);
+        emit Deposit(msg.sender, msg.value, block.timestamp);
     }
 
 }

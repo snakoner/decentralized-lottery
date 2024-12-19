@@ -13,7 +13,7 @@ generate_go_bindings:
 
 deploy:
 	rm -rf ./ignition/deployments
-	npx hardhat ignition deploy ./ignition/modules/Lottery.ts --network holesky
+	npx hardhat ignition deploy ./ignition/modules/Lottery.ts --network sepolia
 
 up:
 	docker-compose up
