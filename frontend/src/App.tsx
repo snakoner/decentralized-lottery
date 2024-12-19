@@ -8,6 +8,7 @@ import LotteryStatus from './Lottery.tsx';
 import LotteryInfo from './LotteryInfo.tsx';
 import WinnersList from './WinnersList.tsx';
 import RoundHistory from './RoundHistory.tsx';
+import Footer from './Footer.tsx';
 import { ALCHEMY_RPC_URL, localStorageWalletConnectHandler } from './constants.tsx';
 
 const supportedChains: ethers.Network[] = [
@@ -106,6 +107,7 @@ function App() {
                 </>
                 
             )}
+        <Footer></Footer>
         </div>
     );
 }
