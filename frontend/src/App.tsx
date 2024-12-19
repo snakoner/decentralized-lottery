@@ -8,7 +8,7 @@ import LotteryStatus from './Lottery.tsx';
 import LotteryInfo from './LotteryInfo.tsx';
 import WinnersList from './WinnersList.tsx';
 import RoundHistory from './RoundHistory.tsx';
-import { ALCHEMY_RPC_URL } from './constants.tsx';
+import { ALCHEMY_RPC_URL, localStorageWalletConnectHandler } from './constants.tsx';
 
 const supportedChains: ethers.Network[] = [
     new ethers.Network('sepolia', 11155111),
@@ -66,14 +66,6 @@ function App() {
         setAccount(null);
         setWalletBalance(null);
         setNetwork(null);
-    }
-
-    const localStorageWalletConnectHandler = () => {
-        if (localStorage.getItem('walletConnected') === undefined) {
-            localStorage.setItem('walletConnected', 'false');
-        }
-
-        return localStorage.getItem('walletConnected') === 'true' ? true : false;
     }
 
     useEffect(() => {

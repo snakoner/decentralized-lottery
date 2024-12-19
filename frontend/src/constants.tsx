@@ -18,3 +18,11 @@ export const CONTRACT_ABI = [
     "function round() public view returns (uint256)",
     "function deposit() external payable"
 ];
+
+export const localStorageWalletConnectHandler = () => {
+    if (localStorage.getItem('walletConnected') === undefined) {
+        localStorage.setItem('walletConnected', 'false');
+    }
+
+    return localStorage.getItem('walletConnected') === 'true' ? true : false;
+}
