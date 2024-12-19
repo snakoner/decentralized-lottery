@@ -142,15 +142,16 @@ contract DecentralizedLottery is IDecentralizedLottery, Ownable {
     /**
      * @dev Allows a user to withdraw their available balance.
      */
-    function withdraw() external {
-        require(balances[msg.sender] > 0, "nothing to withdraw");
+    function withdraw(uint amount) external {
+        require(balances[msg.sender] >= amount && amount > 0, "nothing to withdraw");
 
-        uint value = balances[msg.sender];
+        unchecked {
+            balances[msg.sender] -= amount;
+        }
 
-        balances[msg.sender] = 0;
-        payable(msg.sender).transfer(value);
+        payable(msg.sender).transfer(amount);
 
-        emit Withdraw(msg.sender, value);
+        emit Withdraw(msg.sender, amount);
     }
 
     /**

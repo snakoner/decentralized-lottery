@@ -35,7 +35,7 @@ interface IDecentralizedLottery {
     /**
      * @dev Function to withdraw reward for winner and owner to withdraw commission
      */
-    function withdraw() external;
+    function withdraw(uint amount) external;
 
     /**
      * @dev Function to restart lottery if amount of participants is zero
