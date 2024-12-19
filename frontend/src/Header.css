@@ -87,11 +87,12 @@
     cursor: pointer;
     padding: 5px 10px;
     transition: color 0.3s;
+    text-decoration: none;
 }
 
 .tab-button:hover {
     color: #ffcc00;
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 .right-section {
