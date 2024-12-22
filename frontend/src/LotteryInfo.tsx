@@ -1,9 +1,8 @@
 import React, {useState} from "react";
-import "./LotteryInfo.css";
 import robotImage from "./assets/robot.jpeg";
 import trophyLogo from "./assets/trophy.png";
 import ethereumLogo from "./assets/eth.png";
-import { float } from "hardhat/internal/core/params/argumentTypes";
+import "./LotteryInfo.css";
 
 const LotteryInfo = () => {
     const [allTimeReward, setAllTimeReward] = useState<string|null>("0");

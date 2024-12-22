@@ -4,10 +4,8 @@ import { ethers } from "ethers";
 import copyLogo from "./assets/copy.svg";
 import etherscanLogo from "./assets/etherscan.svg";
 import ethLogo from "./assets/eth.png";
-
-
-import "./Modal.css";
 import { CONTRACT_ADDRESS, CONTRACT_ABI, localStorageWalletConnectHandler } from "./constants.tsx";
+import "./Modal.css";
 
 interface ModalProps {
     account: string;
@@ -107,8 +105,6 @@ const Modal: React.FC<ModalProps> = ({
         }
     };
 
-
-
     return ReactDOM.createPortal(
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -143,13 +139,16 @@ const Modal: React.FC<ModalProps> = ({
                 {showDisconnect && onDisconnect && (
                 <div className="modal-winnings" style = {{marginLeft: "30px"}}>
                     <p><strong>💰 My winnings:</strong> {winnings} ETH</p>
-                    <button
-                        className="lottery-button"
-                        onClick={withdraw}
-                        disabled={loading}
-                    >
-                        {loading ? "Withdrawing..." : "Withdraw"}
-                    </button>
+                    {
+                        Number(winnings) !== 0.0 ? 
+                            <button
+                                className="lottery-button"
+                                onClick={withdraw}
+                                disabled={loading}
+                            >
+                                {loading ? "Withdrawing..." : "Withdraw"}
+                            </button> : null
+                    }
                 </div>
                 )}
 

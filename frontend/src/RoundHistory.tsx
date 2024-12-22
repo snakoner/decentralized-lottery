@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import Modal from './Modal.tsx';
-import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS } from './constants.tsx';
+import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS, CONTRACT_ABI } from './constants.tsx';
 
-const contractABI = ["function round() external view returns (uint)"];
 const provider = new ethers.JsonRpcProvider(ALCHEMY_RPC_URL);
-const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, provider);
+const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
 
 interface Participant {
     address: string;

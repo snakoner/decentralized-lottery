@@ -1,15 +1,15 @@
 import React from 'react';
-import Header from './Header.tsx';
-import './App.css';
-import { ethers } from 'ethers';
 import {useState, useEffect} from 'react';
-import './index.css';
+import { ethers } from 'ethers';
+import Header from './Header.tsx';
 import LotteryStatus from './Lottery.tsx';
 import LotteryInfo from './LotteryInfo.tsx';
 import WinnersList from './WinnersList.tsx';
 import RoundHistory from './RoundHistory.tsx';
 import Footer from './Footer.tsx';
 import { ALCHEMY_RPC_URL, localStorageWalletConnectHandler, supportedChains } from './constants.tsx';
+import './App.css';
+import './index.css';
 
 const convertSupportedChains = (): Map<bigint, ethers.Network> => {
     let map = new Map<bigint, ethers.Network>();

@@ -28,6 +28,7 @@ body {
 	align-items: center; /* Center content horizontally */
 	/* Center text alignment */
 	height: 100%; /* Fill parent height */
+
   }
 
 .lottery-center {
@@ -118,6 +119,15 @@ body {
 	justify-content: space-between; /* Распределяет элементы с одинаковыми промежутками */
 	align-items: center; /* Vertically center the content */
 	height: 500px;
+    min-width: 960px;
+}
+
+@media (max-width: 960px) {
+    .main-container {
+        width: 90%;
+        flex-direction: column;
+        padding: 10px;
+    }
 }
 
 /* List container */

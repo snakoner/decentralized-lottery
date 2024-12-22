@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import Modal from './Modal.tsx';
-import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS } from './constants.tsx';
-const contractABI = [
-    "function round() external view returns (uint)",
-];
-const provider = new ethers.JsonRpcProvider(
-    ALCHEMY_RPC_URL
-);
+import { ALCHEMY_RPC_URL, CONTRACT_ABI, CONTRACT_ADDRESS } from './constants.tsx';
+
+const provider = new ethers.JsonRpcProvider(ALCHEMY_RPC_URL);
 
 const WinnersList: React.FC = () => {
     const [winners, setWinners] = useState<{ round: number; address: string; prize: string }[]>([]);
@@ -15,7 +11,7 @@ const WinnersList: React.FC = () => {
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
     const [selectedWinner, setSelectedWinner] = useState<{ round: number; address: string; prize: string } | null>(null);
 
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI, provider);
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
 
     // Fetch the current round number from the contract
     const fetchCurrentRound = async () => {

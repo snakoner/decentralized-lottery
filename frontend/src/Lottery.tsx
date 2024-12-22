@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import { ethers } from "ethers";
-import './index.css';
-import "./Modal.css";
-import robotLogo from "./assets/robot2.jpeg";
+import WinnersList from './WinnersList.tsx';
 import ParticipantsList from "./ParticipantsList.tsx";
 import { ALCHEMY_RPC_URL, CONTRACT_ABI, CONTRACT_ADDRESS, localStorageWalletConnectHandler } from './constants.tsx';
-import WinnersList from './WinnersList.tsx';
+import robotLogo from "./assets/robot2.jpeg";
+import './index.css';
+import "./Modal.css";
 
 const Modal = ({ isOpen, onClose, modalContent }) => {
     if (!isOpen) return null; // Не отображаем, если окно закрыто

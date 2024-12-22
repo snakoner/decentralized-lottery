@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-
-import "./Header.css";
 import Modal from "./Modal.tsx"; // Import the Modal component
+import "./Header.css";
 
 interface HeaderProps {
     connected: boolean;

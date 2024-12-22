@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import Modal from "./Modal.tsx"; // Import the Modal component
 import { ethers } from 'ethers';
+import Modal from "./Modal.tsx"; // Import the Modal component
 import { ALCHEMY_RPC_URL, CONTRACT_ABI, CONTRACT_ADDRESS } from './constants.tsx';
 
 const provider = new ethers.JsonRpcProvider(ALCHEMY_RPC_URL);
