@@ -9,7 +9,7 @@ const LotteryInfo = () => {
     const [allTimeReward, setAllTimeReward] = useState<string|null>("0");
     const getAllTimeReward = async() => {
         try {
-            const response = await fetch("http://0.0.0.0:8000/all-time-reward", {
+            const response = await fetch("http://localhost:8000/all-time-reward", {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

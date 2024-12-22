@@ -68,7 +68,7 @@ const Modal: React.FC<ModalProps> = ({
 
             const signer = await browserProvider.getSigner();
             const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-            const tx = await contract.withdraw(0); // Using withdraw function
+            const tx = await contract.withdraw(await contract.balances(account)); // Using withdraw function
             await tx.wait();
             alert("Winnings successfully withdrawn!");
             getWinnings(); // Refresh winnings

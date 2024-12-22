@@ -5,7 +5,7 @@ import './index.css';
 import "./Modal.css";
 import robotLogo from "./assets/robot2.jpeg";
 import ParticipantsList from "./ParticipantsList.tsx";
-import { ALCHEMY_RPC_URL, CONTRACT_ABI, CONTRACT_ADDRESS } from './constants.tsx';
+import { ALCHEMY_RPC_URL, CONTRACT_ABI, CONTRACT_ADDRESS, localStorageWalletConnectHandler } from './constants.tsx';
 import WinnersList from './WinnersList.tsx';
 
 const Modal = ({ isOpen, onClose, modalContent }) => {
@@ -52,7 +52,10 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [withdrawButtonDisabled, setWithdrawButtonDisabled] = useState<boolean>(false);
 
-    const openModal = () => setIsModalOpen(true);
+    const openModal = () => {
+        setIsModalOpen(true);
+        console.log('openModal()');
+    }
     const closeModal = () => setIsModalOpen(false);
 
     const contractABI = [
@@ -154,26 +157,8 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
         }
     }
 
-    const withdraw = async() => {
-        if (!connected) {
-            setModalContent('Connect your wallet to withdraw');
-            openModal();
-            return;
-        }
-
-        try {
-            const signer = await browserProvider.getSigner();
-            const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-            const tx = await contract.withdraw(account);
-            await tx.wait();
-            getBalanceToWithdraw();
-        } catch(error) {
-            console.log(error);
-        }
-    }
-
-    const buyTicket = async() => {
-        if (!connected) {
+    const buyTickets = async() => {
+        if (!localStorageWalletConnectHandler()) {
             setModalContent('Connect your wallet to buy tickets');
             openModal();
             return;
@@ -195,7 +180,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
         };
 
         console.log(txParams);
-        // postBuyTicket(account, ticketNumber);
+        // postBuyTickets(account, ticketNumber);
         const signer = await browserProvider.getSigner();
         const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
         try {
@@ -250,7 +235,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
                 {/* Buy Ticket Block */}
                 <div className="lottery-info">
                     <input id="input-lottery" className="lottery-input" placeholder="1"></input>
-                    <button className="lottery-button" onClick={buyTicket}>
+                    <button className="lottery-button" onClick={buyTickets}>
                         Buy Ticket
                     </button>
                 </div>
@@ -265,8 +250,8 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
 
             </div>
 
+            <Modal isOpen={isModalOpen} onClose={closeModal} modalContent={"Please, connect your wallet"}></Modal>
             {/* Right Section: Winners List */}
-            
             <WinnersList />
 
         </div>

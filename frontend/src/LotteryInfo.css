@@ -93,12 +93,12 @@
 
 /* Текст статистики */
 .lottery-welcome-statistics-info-text {
-    width: 70%;
+    width: 100%;
     height: 40px;
     font-size: 1.3em;
     color: black;
     font-weight: 700;
-    float: right;
+    /* float: right; */
     text-align: left;
     margin-top: 30px;
 }
