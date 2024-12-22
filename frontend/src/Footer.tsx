@@ -9,9 +9,9 @@ const Footer = () => {
         &copy; {currentYear} DecentralizedLottery. All rights reserved.
       </p>
       <ul style={styles.links}>
-        <li><a href="/terms" style={styles.link}>Terms of Service</a></li>
+        {/* <li><a href="/terms" style={styles.link}>Terms of Service</a></li>
         <li><a href="/privacy" style={styles.link}>Privacy Policy</a></li>
-        <li><a href="/contact" style={styles.link}>Contact Us</a></li>
+        <li><a href="/contact" style={styles.link}>Contact Us</a></li> */}
       </ul>
     </footer>
   );

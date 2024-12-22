@@ -10,6 +10,7 @@ import Footer from './Footer.tsx';
 import { ALCHEMY_RPC_URL, localStorageWalletConnectHandler, supportedChains } from './constants.tsx';
 import './App.css';
 import './index.css';
+import './Background.css';
 
 const convertSupportedChains = (): Map<bigint, ethers.Network> => {
     let map = new Map<bigint, ethers.Network>();
@@ -30,6 +31,22 @@ function App() {
     const [walletError, setWalletError] = useState<string|null>(null);
     const [walletBalance, setWalletBalance] = useState<string|null>(null);
     const [connected, setConnected] = useState<boolean>(false);
+    const fallingStars: JSX.Element[] = [];
+    const minTimeFall = 2.0;
+
+    const generateFallingStars = () => {
+        fallingStars.length = 0;
+        for (let i = 0; i < 20; i++) {
+            const randValue = Math.random() * 6;;
+            const timeFall = randValue < minTimeFall ? minTimeFall : randValue;
+            const marginLeft = Math.random() * 1400;
+            fallingStars.push(
+                <div className='falling-star' style={{marginLeft: `${marginLeft}px`, animation: `fall ${timeFall}s linear infinite`}}></div>
+            );
+        }    
+    }
+
+    generateFallingStars();
 
     // New state to manage views
     const [view, setView] = useState<'home' | 'history'>('home');
@@ -125,6 +142,7 @@ function App() {
                 
             )}
         <Footer></Footer>
+        {fallingStars}
         </div>
     );
 }

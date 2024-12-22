@@ -51,6 +51,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const [modalContent, setModalContent] = useState<string|null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [withdrawButtonDisabled, setWithdrawButtonDisabled] = useState<boolean>(false);
+    const [round, setRound] = useState<number>(0);
 
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
@@ -111,6 +112,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const getRound = async() => {
         try {
             const num: bigint = await contractRpc.round();
+            setRound(Number(num));
             return num;    
         } catch (error) {
             console.log(error);
@@ -232,10 +234,11 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
 
                 {/* Lottery Information */}
                 <div className="lottery-info">
-                    <p>🎟️ <strong>Ticket Price:</strong> {ticketPrice}</p>
+                    <p>📍 <strong>Round:</strong> {round}</p>
+                    <p>💵 <strong>Ticket Price:</strong> {ticketPrice}</p>
                     <p>👥 <strong>Participants:</strong> {participants}</p>
                     <p>⏳ <strong>Time Left:</strong> {formatTime(timeLeft)}</p>
-                    <p>⏳ <strong>Your tickets:</strong> {ticketNum}</p>
+                    <p>🎟️ <strong>Your tickets:</strong> {ticketNum}</p>
                 </div>
                 {loading ? <Spinner></Spinner> : null}
                 <div className = 'lottery-tx-result-info' id='tx-result'></div>

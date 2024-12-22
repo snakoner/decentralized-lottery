@@ -1,0 +1,69 @@
+/* Устанавливаем фон */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    /* height: 100%; */
+    /* overflow: hidden; */
+    background: linear-gradient(to bottom, #000, #001d4a);
+}
+
+/* Контейнер для анимации */
+.background {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Звезда */
+.falling-star {
+    position: absolute;
+    top: -10px;
+    left: calc(100% * var(--x-start, 0));
+    width: 1px;
+    height: 30px;
+    background: linear-gradient(180deg, #fff, transparent);
+    opacity: 0.8;
+    animation: fall 3s linear infinite;
+    transform: rotate(45deg);
+    z-index: 0;
+    /* filter: blur(1px); */
+}
+
+/* Анимация падения */
+@keyframes fall {
+    0% {
+        transform: translateY(0) rotate(45deg);
+        opacity: 1;
+    }
+    70% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(120vh) rotate(45deg);
+        opacity: 0;
+    }
+}
+
+/* Разные звёзды */
+.falling-star:nth-child(1) {
+    --x-start: 0.1;
+    animation-delay: 0s;
+}
+.falling-star:nth-child(2) {
+    --x-start: 0.4;
+    animation-delay: 0.5s;
+}
+.falling-star:nth-child(3) {
+    --x-start: 0.6;
+    animation-delay: 1s;
+}
+.falling-star:nth-child(4) {
+    --x-start: 0.8;
+    animation-delay: 1.5s;
+}
+.falling-star:nth-child(5) {
+    --x-start: 0.9;
+    animation-delay: 2s;
+}
