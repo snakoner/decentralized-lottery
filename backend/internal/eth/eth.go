@@ -24,7 +24,7 @@ type EthereumServer struct {
 		cli  *ethclient.Client
 		inst *lottery.Lottery
 	}
-	wss struct {
+	ws struct {
 		cli  *ethclient.Client
 		inst *lottery.Lottery
 	}
@@ -73,7 +73,7 @@ func New(config *config.Config) (*EthereumServer, error) {
 			inst: httpInst,
 		},
 
-		wss: struct {
+		ws: struct {
 			cli  *ethclient.Client
 			inst *lottery.Lottery
 		}{
@@ -185,7 +185,7 @@ func (e *EthereumServer) Stop() {
 	if e.http.cli != nil {
 		e.http.cli.Close()
 	}
-	if e.wss.cli != nil {
-		e.wss.cli.Close()
+	if e.ws.cli != nil {
+		e.ws.cli.Close()
 	}
 }
