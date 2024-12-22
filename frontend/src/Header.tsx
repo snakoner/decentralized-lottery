@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Modal from "./Modal.tsx"; // Import the Modal component
+import logo from "./assets/eth.png";
 import "./Header.css";
 
 interface HeaderProps {
@@ -42,7 +43,10 @@ const Header: React.FC<HeaderProps> = ({ connected, account, network, error, con
         <header className="header">
             {/* Left section: Logo */}
             <div className="left-section" onClick={onHomeClick} style={{cursor: "pointer"}}>
-                <h1 className="logo">🎲 Lottery DApp</h1>
+              <div className='logo-logo'
+                style={{ backgroundImage: `url(${logo})` }}
+              ></div>
+                <h1 className="logo">Lottery DApp</h1>
             </div>
 
             {/* Center section: Tabs */}
