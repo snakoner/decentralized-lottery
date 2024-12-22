@@ -96,8 +96,7 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
     function restartEmpty(uint newDuration) 
         external 
         onlyOwner 
-        lotteryFinished 
-    {
+        lotteryFinished {
         require(participants.length == 0, "have participants");
 
         duration = newDuration != 0 ? newDuration : duration;
