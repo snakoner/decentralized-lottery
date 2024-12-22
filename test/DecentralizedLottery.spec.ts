@@ -121,7 +121,7 @@ describe("DecentralizedLottery contract", function() {
 		const winner = getSignerByAddress(winnerAddress, parts)
 		const winnerBalanceBefore = await ethers.provider.getBalance(winner.address);
 
-		await contract.connect(winner).withdraw();
+		await contract.connect(winner).withdraw(await contract.balances(winner.address));
 
 		const winnerBalanceAfter = await ethers.provider.getBalance(winner.address);
 		const winnerBalanceChange = winnerBalanceAfter - winnerBalanceBefore;
@@ -131,7 +131,7 @@ describe("DecentralizedLottery contract", function() {
 		expect(totalSum).to.be.greaterThan(ethers.toBigInt(totalTickets) * contractDeployData.ticketPrice - contractDeployData.feePaidDelta);
 
 		const ownerBalanceBefore = await ethers.provider.getBalance(owner.address);
-		await contract.withdraw();
+		await contract.withdraw(await contract.balances(owner.address));
 		const ownerBalanceAfter = await ethers.provider.getBalance(owner.address);
 
 		expect(ownerBalanceAfter - ownerBalanceBefore).to.be.greaterThan(ownerFee - contractDeployData.feePaidDelta);

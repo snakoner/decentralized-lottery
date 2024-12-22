@@ -34,12 +34,10 @@ class Participant {
     }
 };
 
-describe("DecentralizedLottery contract", function() {
+describe("DecentralizedLotteryV2 contract", function() {
         async function deploy() {
         const owner = (await ethers.getSigners())[0];
         const parts = (await ethers.getSigners()).slice(1, 10);
-
-        console.log(ethers.formatUnits(await ethers.provider.getBalance(owner.address)));
         const Factory = await ethers.getContractFactory("DecentralizedLotteryV2");
         const contract = await Factory.deploy(
             contractDeployData.ownerCommission,
@@ -76,7 +74,6 @@ describe("DecentralizedLottery contract", function() {
             
             totalWeight += _part.ticketsNumber;
         }
-
 
         for (let i = 0; i < totalParticipants; i++) {
             const address = await contract.participants(i);
@@ -125,11 +122,7 @@ describe("DecentralizedLottery contract", function() {
             return {winnerAddress, rewardWei, round};
         }
 
-        const {winnerAddress, rewardWei, round} = await getWinnerSelectedEvent();
-
-        console.log('winner address: ', winnerAddress);
-        console.log('reward wei: ', rewardWei);
-        console.log('round: ', round);
+        const {winnerAddress} = await getWinnerSelectedEvent();
 
         const winner = getSignerByAddress(winnerAddress, parts)
         const winnerBalanceBefore = await ethers.provider.getBalance(winner.address);
@@ -148,7 +141,7 @@ describe("DecentralizedLottery contract", function() {
         expect(ticketWeight).to.be.eq(ethers.toBigInt(2));
 
         // 7. withdraw
-        await contract.connect(winner).withdraw();
+        await contract.connect(winner).withdraw(await contract.balances(winner.address));
 
         const winnerBalanceAfter = await ethers.provider.getBalance(winner.address);
         const winnerBalanceChange = winnerBalanceAfter - winnerBalanceBefore;
@@ -158,10 +151,9 @@ describe("DecentralizedLottery contract", function() {
         expect(totalSum).to.be.greaterThan(ethers.toBigInt(totalWeight) * contractDeployData.ticketPrice - contractDeployData.feePaidDelta);
 
         const ownerBalanceBefore = await ethers.provider.getBalance(owner.address);
-        await contract.withdraw();  
+        await contract.withdraw(await contract.balances(owner.address));  
         const ownerBalanceAfter = await ethers.provider.getBalance(owner.address);
 
         expect(ownerBalanceAfter - ownerBalanceBefore).to.be.greaterThan(ownerFee - contractDeployData.feePaidDelta);
-
     });
 })
