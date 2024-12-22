@@ -52,24 +52,8 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [withdrawButtonDisabled, setWithdrawButtonDisabled] = useState<boolean>(false);
 
-    const openModal = () => {
-        setIsModalOpen(true);
-        console.log('openModal()');
-    }
+    const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
-
-    const contractABI = [
-        "function getTimeLeft() external view returns (uint)",
-        "function getParticipantsNum() external view returns (uint)",
-        //"function getParticipants() external view returns (address)",
-        "function participants(uint256) external view returns (address)",
-        "function getUnlockedBalance(address account) external view returns (uint)",
-        "function getTicketNum(address account) external view returns (uint)",
-        "function ticketPrice() public view returns (uint)",
-        "function round() public view returns (uint)",
-        "function bid(uint amount) external payable",
-        "function withdraw(address payable _to) external",
-    ];
 
     const browserProvider = new ethers.BrowserProvider(window.ethereum);
     const providerRpc = new ethers.JsonRpcProvider(ALCHEMY_RPC_URL);
@@ -181,17 +165,25 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
 
         const signer = await browserProvider.getSigner();
         const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+        const txResult = document.getElementById('tx-result');
         try {
-            const tx = await contract.bid(ethers.toBigInt(ticketNumber), txParams);
             setLoading(true);
+            const tx = await contract.bid(ethers.toBigInt(ticketNumber), txParams);
             await tx.wait();
-            const txResult = document.getElementById('tx-result');
+
+            setLoading(false);
             if (txResult) {
                 txResult.innerHTML = '✅ Tx completed';
+                setTimeout(() => { txResult.innerHTML = ''; }, 2000)
             }
-
+                
             getTicketsByUser();
         } catch (error) {
+            if (txResult) {
+                txResult.innerHTML = '❌ Tx rejected';
+                setTimeout(() => { txResult.innerHTML = ''; }, 2000)
+            }
+
             console.log(error);
         } finally {
             setLoading(false);
@@ -246,6 +238,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
                     <p>⏳ <strong>Your tickets:</strong> {ticketNum}</p>
                 </div>
                 {loading ? <Spinner></Spinner> : null}
+                <div className = 'lottery-tx-result-info' id='tx-result'></div>
             </div>
 
             <Modal isOpen={isModalOpen} onClose={closeModal} modalContent={"Please, connect your wallet"}></Modal>

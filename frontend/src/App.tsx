@@ -9,11 +9,20 @@ import LotteryInfo from './LotteryInfo.tsx';
 import WinnersList from './WinnersList.tsx';
 import RoundHistory from './RoundHistory.tsx';
 import Footer from './Footer.tsx';
-import { ALCHEMY_RPC_URL, localStorageWalletConnectHandler } from './constants.tsx';
+import { ALCHEMY_RPC_URL, localStorageWalletConnectHandler, supportedChains } from './constants.tsx';
 
-const supportedChains: ethers.Network[] = [
-    new ethers.Network('sepolia', 11155111),
-];
+const convertSupportedChains = (): Map<bigint, ethers.Network> => {
+    let map = new Map<bigint, ethers.Network>();
+
+    for (const suppChains of supportedChains) {
+        map.set(
+            ethers.toBigInt(suppChains.chainId), 
+            new ethers.Network(suppChains.network, suppChains.chainId)
+        );
+    }
+
+    return map;
+}
 
 function App() {
     const [account, setAccount] = useState<string|null>(null);
@@ -53,8 +62,16 @@ function App() {
             const remoteProvider = new ethers.JsonRpcProvider(ALCHEMY_RPC_URL);
             const provider = new ethers.BrowserProvider(window.ethereum);
 
-            setWalletBalance(walletBalanceFormat(await remoteProvider.getBalance(accounts[0])));
+            const chainID =  (await provider.getNetwork()).chainId;
+            if (convertSupportedChains().get(chainID) === undefined) {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0x' + supportedChains[0].chainId.toString(16) }], // chainId в формате hex (например, '0x1' для Ethereum Mainnet)
+                });
+            }
+
             setNetwork((await provider.getNetwork()).name);
+            setWalletBalance(walletBalanceFormat(await remoteProvider.getBalance(accounts[0])));
         } catch (err) {
             setWalletError("Failed to connect wallet. Please try again.");
             console.log(walletError);

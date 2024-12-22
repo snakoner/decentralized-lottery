@@ -56,6 +56,13 @@ body {
 	color: #ffe600;
   }
   
+.lottery-tx-result-info {
+	width: 90%;
+	height: 30px;
+	margin: 0 auto;
+	margin-top: 20px;
+}
+
   .lottery-button {
 	background: #1bff4c;
 	color: #000;
