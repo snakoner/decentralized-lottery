@@ -79,6 +79,7 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         }
 
         if (!participantExist[round][msg.sender]) {
+            participantExist[round][msg.sender] = true;
             participants.push(msg.sender);
         }
 
@@ -191,6 +192,7 @@ contract DecentralizedLotteryV2 is Ownable, IDecentralizedLottery {
         }
 
         if (!participantExist[round][msg.sender]) {
+            participantExist[round][msg.sender] = true;
             participants.push(msg.sender);
         }
 
