@@ -49,7 +49,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
     const [unlockedBalance, setUnlockedBalance] = useState<bigint>(0);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [modalContent, setModalContent] = useState<string|null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState<boolean>(false);
     const [withdrawButtonDisabled, setWithdrawButtonDisabled] = useState<boolean>(false);
 
     const openModal = () => {
@@ -179,13 +179,11 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
             value: ticketPriceWei * ethers.toBigInt(ticketNumber),
         };
 
-        console.log(txParams);
-        // postBuyTickets(account, ticketNumber);
         const signer = await browserProvider.getSigner();
         const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
         try {
-            setLoading(true);
             const tx = await contract.bid(ethers.toBigInt(ticketNumber), txParams);
+            setLoading(true);
             await tx.wait();
             const txResult = document.getElementById('tx-result');
             if (txResult) {
@@ -195,9 +193,9 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
             getTicketsByUser();
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
-
-        setLoading(false);
     }
 
     // internal
@@ -247,7 +245,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
                     <p>⏳ <strong>Time Left:</strong> {formatTime(timeLeft)}</p>
                     <p>⏳ <strong>Your tickets:</strong> {ticketNum}</p>
                 </div>
-
+                {loading ? <Spinner></Spinner> : null}
             </div>
 
             <Modal isOpen={isModalOpen} onClose={closeModal} modalContent={"Please, connect your wallet"}></Modal>
