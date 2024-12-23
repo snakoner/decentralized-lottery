@@ -228,7 +228,7 @@ const LotteryStatus: React.FC<LotteryProps> = ({connected, account}) => {
                 <div className="lottery-info">
                     <input id="input-lottery" className="lottery-input" placeholder="1"></input>
                     <button className="lottery-button" onClick={buyTickets}>
-                        Buy Ticket
+                        Buy Tickets
                     </button>
                 </div>
 

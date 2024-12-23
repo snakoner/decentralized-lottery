@@ -12,10 +12,10 @@
     padding: 10px 20px;
 
     /* Styling */
-    background-color: #1e1f26; /* Slightly darker for a modern look */
+    background-color: #1e1f26; 
     color: #ffffff;
-    border-bottom: 1px solid #333; /* Subtle bottom border */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid #333; 
+    box-shadow: 0 10px 10px rgba(1, 1, 0, 0.2);
 
     /* Smooth transitions for hover effects */
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
@@ -62,7 +62,6 @@
     flex: 1;
     display: flex;
     align-items: center;
-    /* background-color: #0e5bb5; */
 }
 
 .logo-logo {
