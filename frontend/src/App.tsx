@@ -136,7 +136,6 @@ function App() {
             )}
             {view === 'history' && (
                 <>
-                        <WinnersList />
                         <RoundHistory />
                 </>
                 

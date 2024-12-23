@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import Modal from './Modal.tsx';
 import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS, CONTRACT_ABI } from './constants.tsx';
+import copyLogo from './assets/copy.svg';
+import etherscanLogo from './assets/etherscan.svg';
+import './RoundHistory.css';
 
 const provider = new ethers.JsonRpcProvider(ALCHEMY_RPC_URL);
 const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
@@ -17,160 +19,173 @@ interface RoundDetail {
     pool: string;
     winner: string;
     winnings: string;
+    start: string;
+    end: string;
 }
 
 const RoundHistory: React.FC = () => {
-    const [rounds, setRounds] = useState<{ round: number; participants: number; pool: string }[]>([]);
-    const [currentRound, setCurrentRound] = useState<number | null>(null);
-    const [roundDetailPopup, setRoundDetailPopup] = useState<RoundDetail | null>(null);
-    const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
-    const [participantModalContent, setParticipantModalContent] = useState<string | null>(null);
+    const [rounds, setRounds] = useState<RoundDetail[]>([]);
+    const [expandedRound, setExpandedRound] = useState<number | null>(null); // To manage expanded dropdown
+    const [itemsPerPage, setItemsPerPage] = useState<number>(10); // Items per page
+    const [currentPage, setCurrentPage] = useState<number>(1);
 
-    // Fetch current round number from the contract
-    const fetchCurrentRound = async () => {
-        try {
-            const round = await contract.round();
-            setCurrentRound(Number(round));
-        } catch (error) {
-            console.error("Error fetching current round:", error);
-        }
-    };
-
-    // Fetch round summaries
+    // Fetch round data
     const fetchRounds = async () => {
-        if (currentRound === null) return;
+        try {
+            const roundCount = await contract.round();
+            const fetchedRounds: RoundDetail[] = [];
 
-        const fetchedRounds = [];
-        for (let i = 0; i < currentRound; i++) {
-            try {
+            for (let i = 0; i < roundCount; i++) {
                 const response = await fetch(`http://localhost:8000/round/${i}`);
-                const data = await response.json();
-                const uniqueParticipants = new Set(data.events.map((e: any) => e.account));
+                const roundData = await response.json();
+
+                const participantMap: { [address: string]: number } = {};
+                roundData.events.forEach((e: any) => {
+                    participantMap[e.account] = (participantMap[e.account] || 0) + e.amount;
+                });
+
+                const participants = Object.entries(participantMap).map(([address, tickets]) => ({
+                    address,
+                    tickets,
+                }));
+
+                const winnerResponse = await fetch(`http://localhost:8000/winner/${i}`);
+                const winnerData = await winnerResponse.json();
+
                 const totalPool = ethers.formatEther(
-                    ethers.toBigInt(
-                        data.events.reduce((sum: bigint, e: any) => sum + BigInt(e.amount), BigInt(0))
-                    )
+                    roundData.events.reduce((sum: bigint, e: any) => sum + BigInt(e.amount), BigInt(0))
                 );
 
                 fetchedRounds.push({
                     round: i,
-                    participants: uniqueParticipants.size,
+                    participants,
                     pool: `${totalPool} ETH`,
+                    winner: winnerData.winner.account,
+                    winnings: ethers.formatEther(BigInt(winnerData.winner.amount)) + ' ETH',
+                    start: roundData.start,
+                    end: roundData.end,
                 });
-            } catch (error) {
-                console.error(`Error fetching round ${i}:`, error);
             }
-        }
 
-        setRounds(fetchedRounds);
-    };
-
-    // Fetch detailed information for a specific round
-    const fetchRoundDetails = async (round: number) => {
-        try {
-            // Fetch participants
-            const roundResponse = await fetch(`http://localhost:8000/round/${round}`);
-            const roundData = await roundResponse.json();
-            const participantMap: { [address: string]: number } = {};
-
-            roundData.events.forEach((e: any) => {
-                participantMap[e.account] = (participantMap[e.account] || 0) + e.amount;
-            });
-
-            const participants = Object.entries(participantMap).map(([address, tickets]) => ({
-                address,
-                tickets,
-            }));
-
-            // Fetch winner
-            const winnerResponse = await fetch(`http://localhost:8000/winner/${round}`);
-            const winnerData = await winnerResponse.json();
-            const winner = winnerData.winner.account;
-            const winnings = ethers.formatEther(ethers.toBigInt(winnerData.winner.amount)) + " ETH";
-
-            setRoundDetailPopup({
-                round,
-                participants,
-                pool: rounds.find((r) => r.round === round)?.pool || "0 ETH",
-                winner,
-                winnings,
-            });
+            setRounds(fetchedRounds);
         } catch (error) {
-            console.error(`Error fetching details for round ${round}:`, error);
+            console.error('Error fetching rounds:', error);
         }
     };
 
     useEffect(() => {
-        fetchCurrentRound();
+        fetchRounds();
     }, []);
 
-    useEffect(() => {
-        if (currentRound !== null) {
-            fetchRounds();
-        }
-    }, [currentRound]);
+    const toggleRound = (round: number) => {
+        setExpandedRound(expandedRound === round ? null : round);
+        setCurrentPage(1); // Reset pagination when toggling
+    };
 
-    const truncateAddress = (address: string) => `${address.slice(0, 6)}...${address.slice(-4)}`.toLowerCase();
+    const paginate = (items: Participant[]) => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return items.slice(start, start + itemsPerPage);
+    };
+
+    const handleItemsPerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setItemsPerPage(Number(event.target.value));
+        setCurrentPage(1); // Reset to the first page
+    };
+
+    const copyToClipboard = (address: string) => {
+        navigator.clipboard.writeText(address);
+        alert('Address copied to clipboard!');
+    };
 
     return (
-        <div className="main-container">
-            <div className="lottery-container">
-                <h1 className="lottery-title">Round History</h1>
-                <ul className="list">
-                    {rounds.map((round, index) => (
-                        <li
-                            key={index}
-                            className="list-item"
-                            onClick={() => fetchRoundDetails(round.round)}
-                            style={{ cursor: "pointer", marginBottom: "10px" }}
-                        >
-                            Round {round.round}: {round.participants} participants, pool: {round.pool}
-                        </li>
-                    ))}
-                </ul>
-            </div>
-
-            {/* Round Details Popup */}
-            {roundDetailPopup && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h2>Round {roundDetailPopup.round} Details</h2>
-                            <button onClick={() => setRoundDetailPopup(null)}>✖</button>
+        <div className="round-history-container">
+            <h1 className="lottery-title">Round History</h1>
+            <div className="round-list">
+                {rounds.map((round) => (
+                    <div key={round.round} className="round-item">
+                        <div className="round-header" onClick={() => toggleRound(round.round)}>
+                            <p>
+                                <strong>Round {round.round}:</strong> Pool: {round.pool}, Winner: {round.winner}
+                            </p>
+                            <p>Start: {round.start}, End: {round.end}</p>
                         </div>
-                        <div className="modal-body">
-                            <p><strong>Total Pool:</strong> {roundDetailPopup.pool}</p>
-                            <p><strong>Winner:</strong> {truncateAddress(roundDetailPopup.winner)}</p>
-                            <p><strong>Winnings:</strong> {roundDetailPopup.winnings}</p>
-                            <p><strong>Participants:</strong></p>
-                            <ul>
-                                {roundDetailPopup.participants.map((p, idx) => (
-                                    <li
-                                        key={idx}
-                                        style={{ cursor: "pointer", marginBottom: "8px" }}
-                                        onClick={() => {
-                                            setParticipantModalContent(`Address: ${p.address}, Tickets: ${p.tickets}`);
-                                            setModalIsOpen(true);
-                                        }}
+                        {expandedRound === round.round && (
+                            <div className="round-details">
+                                <p><strong>Pool:</strong> {round.pool}</p>
+                                <p>
+                                    <strong>Winner:</strong> {round.winner}{' '}
+                                    <img
+                                        src={copyLogo}
+                                        alt="Copy"
+                                        className="icon"
+                                        onClick={() => copyToClipboard(round.winner)}
+                                    />
+                                    <a
+                                        href={`https://etherscan.io/address/${round.winner}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
                                     >
-                                        {truncateAddress(p.address)} - {p.tickets} ticket(s)
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            )}
+                                        <img src={etherscanLogo} alt="Etherscan" className="icon" />
+                                    </a>
+                                </p>
+                                <p><strong>Winnings:</strong> {round.winnings}</p>
+                                <p><strong>Participants:</strong></p>
 
-            {/* Participant Modal */}
-            {modalIsOpen && (
-                <Modal
-                    isOpen={modalIsOpen}
-                    onClose={() => setModalIsOpen(false)}
-                    title="Participant Details"
-                    content={<div>{participantModalContent}</div>}
-                />
-            )}
+                                {/* Pagination Controls */}
+                                <div className="pagination-controls">
+                                    <label>
+                                        Show:
+                                        <select value={itemsPerPage} onChange={handleItemsPerPageChange}>
+                                            <option value={10}>10</option>
+                                            <option value={50}>50</option>
+                                            <option value={100}>100</option>
+                                        </select>
+                                    </label>
+                                    <p>
+                                        Page {currentPage} of {Math.ceil(round.participants.length / itemsPerPage)}
+                                    </p>
+                                    <button
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                    >
+                                        Previous
+                                    </button>
+                                    <button
+                                        disabled={currentPage === Math.ceil(round.participants.length / itemsPerPage)}
+                                        onClick={() =>
+                                            setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(round.participants.length / itemsPerPage)))
+                                        }
+                                    >
+                                        Next
+                                    </button>
+                                </div>
+
+                                {/* Participants List */}
+                                <ul className="participant-list">
+                                    {paginate(round.participants).map((participant, index) => (
+                                        <li key={index}>
+                                            {participant.address} - {participant.tickets} ticket(s)
+                                            <img
+                                                src={copyLogo}
+                                                alt="Copy"
+                                                className="icon"
+                                                onClick={() => copyToClipboard(participant.address)}
+                                            />
+                                            <a
+                                                href={`https://etherscan.io/address/${participant.address}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                <img src={etherscanLogo} alt="Etherscan" className="icon" />
+                                            </a>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
