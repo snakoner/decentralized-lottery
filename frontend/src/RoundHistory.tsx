@@ -52,14 +52,23 @@ const RoundHistory: React.FC = () => {
                 const winnerResponse = await fetch(`http://localhost:8000/winner/${i}`);
                 const winnerData = await winnerResponse.json();
 
-                const totalPool = ethers.formatEther(
-                    roundData.events.reduce((sum: bigint, e: any) => sum + BigInt(e.amount), BigInt(0))
-                );
+
+
+                const totalPool = roundData.events.reduce((sum: bigint, e: any) => {
+                    return sum + BigInt(e.amount || 0);
+                }, BigInt(0));
+
+                console.log("Raw totalPool (in wei):", totalPool.toString()); // Debugging
+
+// Adjust by dividing by 10^4 instead of 10^14
+                const correctedPool = (Number(totalPool) / 10 ** 4).toFixed(4); // Scale to ETH
+                console.log("Corrected Pool (ETH):", correctedPool); // Debugging/ Debugging
+
 
                 fetchedRounds.push({
                     round: i,
                     participants,
-                    pool: `${totalPool} ETH`,
+                    pool: `${correctedPool} ETH`,
                     winner: winnerData.winner.account,
                     winnings: ethers.formatEther(BigInt(winnerData.winner.amount)) + ' ETH',
                     start: roundData.start,
