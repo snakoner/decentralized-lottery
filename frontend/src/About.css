@@ -1,0 +1,89 @@
+.about-container {
+    width: 80%;
+    height: 800px;
+    /* background-color: aqua; */
+    margin: 0 auto;   
+    margin-top: 30px;
+}
+
+.about-general-container {
+    width: 100%;
+    height: 200px;
+	background: linear-gradient(135deg, #6a11cb, #2575fc);
+    border-radius: 10px;
+    text-align: left;
+    transition: transform 0.3s ease; /* Плавное увеличение */
+}
+
+.about-general-container:hover {
+	transform: scale(1.01); /* Увеличение до 120% */
+}
+
+
+.about-general-text-container {
+    overflow: hidden;
+    position: absolute;
+    width: 80%;
+    height: 120px;
+    margin-top: 30px;
+}
+
+
+
+.about-general-container p {
+    padding-left: 30px;
+    padding-right: 30px;
+    color: white;
+    font-size: 36px;
+    font-weight: 600;
+}
+
+.about-explanation-contrainer {
+    width: 100%;
+    height: 400px;
+    /* background-color: aqua; */
+    margin: 0 auto;   
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between; /* Равномерное распределение */
+    
+}
+
+.about-explanation-sub-contrainer {
+    flex: 1; /* Равная ширина для всех дочерних элементов */
+	background: linear-gradient(135deg, #6a11cb, #2575fc);
+    text-align: center;
+    margin: 0 10px; /* Отступы между элементами */
+    border-radius: 10px;
+    /* padding: 20px; */
+    transition: transform 0.3s ease; /* Плавное увеличение */
+}
+
+.about-explanation-sub-contrainer:hover {
+	transform: scale(1.01); /* Увеличение до 120% */
+}
+
+
+
+.about-explanation-sub-contrainer img {
+    width: 50%;
+    height: auto;
+    background-color: #2575fc;
+    margin-top: 20px;
+    -webkit-mask-image: radial-gradient(circle, rgba(255, 255, 255, 1) 100%, rgba(255, 255, 255, 0) 80%);
+    mask-image: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 80%);
+}
+
+.about-explanation-text-contrainer {
+    width: 80%;
+    height: 100px;
+    /* background-color: aliceblue; */
+    margin: 0 auto;
+    margin-top: 20px;
+}
+
+.about-explanation-text-contrainer p {
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+}

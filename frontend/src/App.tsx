@@ -11,6 +11,7 @@ import { ALCHEMY_RPC_URL, localStorageWalletConnectHandler, supportedChains } fr
 import './App.css';
 import './index.css';
 import './Background.css';
+import About from './About.tsx';
 
 const convertSupportedChains = (): Map<bigint, ethers.Network> => {
     let map = new Map<bigint, ethers.Network>();
@@ -113,6 +114,7 @@ function App() {
     // Handlers for switching views
     const handleHomeClick = () => setView('home'); // Navigate to Home
     const handleHistoryClick = () => setView('history'); // Navigate to History
+    const handleAboutClick = () => setView('about'); // Navigate to History
 
 
     return (
@@ -127,6 +129,7 @@ function App() {
                 walletBalance={walletBalance}
                 onHomeClick={handleHomeClick} // Pass navigation handlers to Header
                 onHistoryClick={handleHistoryClick}
+                onAboutClick={handleAboutClick}
             />
             {view === 'home' && (
                 <>
@@ -137,6 +140,12 @@ function App() {
             {view === 'history' && (
                 <>
                         <RoundHistory />
+                </>
+                
+            )}
+            {view === 'about' && (
+                <>
+                        <About />
                 </>
                 
             )}

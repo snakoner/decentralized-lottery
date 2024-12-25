@@ -15,7 +15,7 @@ interface HeaderProps {
     onHistoryClick: () => void; // Prop for navigating to History
 }
 
-const Header: React.FC<HeaderProps> = ({ connected, account, network, error, connectWallet, disconnectWallet, walletBalance, onHomeClick, onHistoryClick }) => {
+const Header: React.FC<HeaderProps> = ({ connected, account, network, error, connectWallet, disconnectWallet, walletBalance, onHomeClick, onHistoryClick, onAboutClick }) => {
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
 
     const slicedWalletAddress = () => {
@@ -54,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ connected, account, network, error, con
                 <button className="tab-button" onClick={onHistoryClick}>
                     History
                 </button>
-                <button className="tab-button">About</button>
+                <button className="tab-button" onClick={onAboutClick}>About</button>
             </nav>
 
             {/* Right section: Wallet info */}
