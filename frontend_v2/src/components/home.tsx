@@ -24,6 +24,13 @@ interface HomePageProps {
   onEntrySubmit?: () => void;
 }
 
+interface Winner {
+	id: string;
+	address: string;
+	amount: string;
+	timestamp: string;  
+};
+
 const HomePage = ({
 	// poolAmount = "100 ETH",
 	entryFee = "0.1 ETH",
@@ -37,6 +44,7 @@ const HomePage = ({
 	const [ticketPrice, setTicketPrice] = useState<string|null>("0");
 	const [secondsTimeRemaining, setSecondsTimeRemaining] = useState<number>(0);
 	const [poolAmount, setPoolAmount] = useState<string|null>("0.0");
+	const [winners, setWinners] = useState<Winner[]|null>();
 
     const browserProvider = new ethers.BrowserProvider(window.ethereum);
     const providerRpc = new ethers.JsonRpcProvider(ALCHEMY_RPC_URL);
@@ -79,6 +87,39 @@ const HomePage = ({
 		}
 	}
 
+	const getHistoricalWinners = async() => {
+		const pastWinners: Winner[] = [];
+		try {
+			const num: bigint = await contractRpc.round();
+
+			for (let i = 0; i < Number(num); i++) {
+				const response = await fetch(`http://localhost:8000/winner/${i}`, {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+					},     
+				});
+
+				const data = await response.json();
+				if (data['winner'] !== undefined) {
+					console.log('winner: ', data['winner']);	
+					pastWinners.push({
+						id: `w${data['winner']['round']}`,
+						address: data['winner']['account'],
+						amount: ethers.formatUnits(data['winner']['amount']),
+						timestamp: "17657374543",
+					});				
+				}
+			}
+
+			setWinners(pastWinners);
+		} catch(error) {
+			console.log(error);
+		}
+
+		console.log(pastWinners);
+	}
+
 	const getCurrentPool = async() => {
 		try {
 			const currentRound = await getCurrentRound();
@@ -119,6 +160,7 @@ const HomePage = ({
 	useEffect(() => {
 		getAllTimeReward();
 		getCurrentPool();
+		getHistoricalWinners();
     }, []);
 	
 	return (
@@ -157,7 +199,7 @@ const HomePage = ({
 			</div>
 
 			<div className="transform hover:scale-[1.01] transition-transform">
-				<HistoryGrid />
+				<HistoryGrid winners={winners}/>
 			</div>
 			</div>
 		</main>

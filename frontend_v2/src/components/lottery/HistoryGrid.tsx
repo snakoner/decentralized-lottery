@@ -34,6 +34,8 @@ const defaultWinners: Winner[] = [
   },
 ];
 
+const truncateAddress = (address: string) => `${address.slice(0, 6)}...${address.slice(-4)}`.toLowerCase();
+
 const HistoryGrid = ({ winners = defaultWinners }: HistoryGridProps) => {
   return (
     <Card className="w-[1200px] h-[400px] p-6 bg-gray-50 dark:bg-black">
@@ -43,8 +45,8 @@ const HistoryGrid = ({ winners = defaultWinners }: HistoryGridProps) => {
           title="Recent Winners"
           entries={winners.map((winner) => ({
             id: winner.id,
-            address: winner.address,
-            amount: winner.amount,
+            address: truncateAddress(winner.address),
+            amount: winner.amount + " ETH",
             timestamp: winner.timestamp,
           }))}
         />
