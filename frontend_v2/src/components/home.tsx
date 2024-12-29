@@ -24,12 +24,27 @@ interface HomePageProps {
   onEntrySubmit?: () => void;
 }
 
-interface Winner {
+interface Participant {
 	id: string;
 	address: string;
 	amount: string;
 	timestamp: string;  
 };
+
+function convertUnixTimestampToDate(timestamp: number): string {
+	// Convert the Unix timestamp to milliseconds
+	const date = new Date(timestamp * 1000);
+  
+	// Format the date as a human-readable string
+	// Example format: 'YYYY-MM-DD HH:mm:ss'
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+	const day = String(date.getDate()).padStart(2, '0');
+	const hours = String(date.getHours()).padStart(2, '0');
+	const minutes = String(date.getMinutes()).padStart(2, '0');
+  
+	return `${year}-${month}-${day} ${hours}:${minutes}`;
+  }
 
 const HomePage = ({
 	// poolAmount = "100 ETH",
@@ -44,7 +59,8 @@ const HomePage = ({
 	const [ticketPrice, setTicketPrice] = useState<string|null>("0");
 	const [secondsTimeRemaining, setSecondsTimeRemaining] = useState<number>(0);
 	const [poolAmount, setPoolAmount] = useState<string|null>("0.0");
-	const [winners, setWinners] = useState<Winner[]|null>();
+	const [winners, setWinners] = useState<Participant[]|null>();
+	const [participants, setParticipants] = useState<Participant[]|null>();
 
     const browserProvider = new ethers.BrowserProvider(window.ethereum);
     const providerRpc = new ethers.JsonRpcProvider(ALCHEMY_RPC_URL);
@@ -88,7 +104,7 @@ const HomePage = ({
 	}
 
 	const getHistoricalWinners = async() => {
-		const pastWinners: Winner[] = [];
+		const pastWinners: Participant[] = [];
 		try {
 			const num: bigint = await contractRpc.round();
 
@@ -101,13 +117,13 @@ const HomePage = ({
 				});
 
 				const data = await response.json();
-				if (data['winner'] !== undefined) {
-					console.log('winner: ', data['winner']);	
+				const winner = data['winner'];
+				if (winner !== undefined) {
 					pastWinners.push({
-						id: `w${data['winner']['round']}`,
-						address: data['winner']['account'],
-						amount: ethers.formatUnits(data['winner']['amount']),
-						timestamp: "17657374543",
+						id: `w${winner?.round}`,
+						address: winner?.account,
+						amount: ethers.formatUnits(winner?.amount),
+						timestamp: convertUnixTimestampToDate(winner?.timestamp),
 					});				
 				}
 			}
@@ -116,8 +132,6 @@ const HomePage = ({
 		} catch(error) {
 			console.log(error);
 		}
-
-		console.log(pastWinners);
 	}
 
 	const getCurrentPool = async() => {
