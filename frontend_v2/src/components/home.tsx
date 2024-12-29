@@ -151,7 +151,7 @@ const HomePage = ({
 			const data = await response.json();
 			console.log(data);
 			const events = data['events'];
-			if (events !== undefined) {
+			if (events) {
 				for (let i = 0; i < events.length; i++) {
 					participants.push({
 						id: `w${i}`,
