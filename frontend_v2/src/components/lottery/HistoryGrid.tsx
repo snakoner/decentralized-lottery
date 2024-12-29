@@ -10,37 +10,28 @@ interface Winner {
 }
 
 interface HistoryGridProps {
+  participants?: Winner[];
   winners?: Winner[];
 }
 
 const defaultWinners: Winner[] = [
-  {
-    id: "w1",
-    address: "0xabcd...ef12",
-    amount: "10 ETH",
-    timestamp: "2024-01-19 12:00",
-  },
-  {
-    id: "w2",
-    address: "0x7890...cd34",
-    amount: "8 ETH",
-    timestamp: "2024-01-18 12:00",
-  },
-  {
-    id: "w3",
-    address: "0x4567...89ab",
-    amount: "12 ETH",
-    timestamp: "2024-01-17 12:00",
-  },
+
 ];
 
 const truncateAddress = (address: string) => `${address.slice(0, 6)}...${address.slice(-4)}`.toLowerCase();
 
-const HistoryGrid = ({ winners = defaultWinners }: HistoryGridProps) => {
+const HistoryGrid = ({ participants = defaultWinners, winners = defaultWinners }: HistoryGridProps) => {
   return (
     <Card className="w-[1200px] h-[400px] p-6 bg-gray-50 dark:bg-black">
       <div className="flex justify-between gap-8 h-full">
-        <HistoryList />
+        <HistoryList 
+          entries={participants.map((participant) => ({
+            id: participant.id,
+            address: truncateAddress(participant.address),
+            amount: participant.amount + " ETH",
+            timestamp: participant.timestamp,
+          }))}        
+        />
         <HistoryList
           title="Recent Winners"
           entries={winners.map((winner) => ({

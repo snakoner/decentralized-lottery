@@ -134,6 +134,40 @@ const HomePage = ({
 		}
 	}
 
+
+	const getCurrentParticipants = async() => {
+		const participants: Participant[] = [];
+		try {
+			let round = await getCurrentRound();
+			console.log(round);
+			const ticketPrice: bigint = await contractRpc.ticketPrice();
+			const response = await fetch(`http://localhost:8000/round/${round}`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+				},     
+			});
+
+			const data = await response.json();
+			console.log(data);
+			const events = data['events'];
+			if (events !== undefined) {
+				for (let i = 0; i < events.length; i++) {
+					participants.push({
+						id: `w${i}`,
+						address: events[i]?.account,
+						amount: ethers.formatUnits(ethers.toBigInt(events[i].amount) * ticketPrice),
+						timestamp: convertUnixTimestampToDate(events[i]?.timestamp),
+					});				
+				}
+			}
+
+			setParticipants(participants);
+		} catch(error) {
+			console.log(error);
+		}
+	}
+
 	const getCurrentPool = async() => {
 		try {
 			const currentRound = await getCurrentRound();
@@ -175,6 +209,7 @@ const HomePage = ({
 		getAllTimeReward();
 		getCurrentPool();
 		getHistoricalWinners();
+		getCurrentParticipants();
     }, []);
 	
 	return (
@@ -213,7 +248,7 @@ const HomePage = ({
 			</div>
 
 			<div className="transform hover:scale-[1.01] transition-transform">
-				<HistoryGrid winners={winners}/>
+				<HistoryGrid winners={winners} participants={participants}/>
 			</div>
 			</div>
 		</main>
