@@ -15,6 +15,7 @@ type WinnerSelectedEvent struct {
 	Account       string `json:"account"`
 	Amount        int64  `json:"amount"`
 	Round         int64  `json:"round"`
+	Timestamp     int64  `json:"timestamp"`
 	RoundFinished bool   `json:"round-finished"`
 }
 

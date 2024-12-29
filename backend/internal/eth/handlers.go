@@ -3,6 +3,7 @@ package eth
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"math/big"
 	"net/http"
 	"strconv"
@@ -123,12 +124,20 @@ func (e *EthereumServer) WinnerHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
+		block, err := e.http.cli.BlockByHash(context.Background(), logs.Event.Raw.BlockHash)
+		if err != nil {
+			log.Fatalf("Failed to retrieve block: %v", err)
+		}
+
+		// Extract the timestamp
+		timestamp := block.Time()
 		event := logs.Event
 		if round == event.Round.Int64() {
 			winnerSelectedResponse.Winner = models.WinnerSelectedEvent{
 				Account:       event.Account.Hex(),
 				Amount:        event.Amount.Int64(),
 				Round:         event.Round.Int64(),
+				Timestamp:     int64(timestamp),
 				RoundFinished: true,
 			}
 		}
