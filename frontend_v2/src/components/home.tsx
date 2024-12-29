@@ -6,8 +6,8 @@ import FeatureCards from "./lottery/FeatureCards";
 import Header from "./layout/Header";
 import Footer from "./layout/Footer";
 import { useEffect, useState } from "react";
-import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS, CONTRACT_ABI } from "./constants";
 import { ethers } from "ethers"; 
+import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS, CONTRACT_ABI } from "./constants";
 
 interface TimeRemaining {
     hours: number;
@@ -105,6 +105,8 @@ const HomePage = ({
 
 	const getHistoricalWinners = async() => {
 		const pastWinners: Participant[] = [];
+		let poolSize = ethers.toBigInt(0);
+
 		try {
 			const num: bigint = await contractRpc.round();
 
@@ -124,10 +126,11 @@ const HomePage = ({
 						address: winner?.account,
 						amount: ethers.formatUnits(winner?.amount),
 						timestamp: convertUnixTimestampToDate(winner?.timestamp),
-					});				
+					});
 				}
 			}
 
+			setPoolAmount(ethers.formatUnits(poolSize));
 			setWinners(pastWinners);
 		} catch(error) {
 			console.log(error);
@@ -139,7 +142,8 @@ const HomePage = ({
 		const participants: Participant[] = [];
 		try {
 			let round = await getCurrentRound();
-			console.log(round);
+			let poolSize = ethers.toBigInt(0);
+
 			const ticketPrice: bigint = await contractRpc.ticketPrice();
 			const response = await fetch(`http://localhost:8000/round/${round}`, {
 				method: 'GET',
@@ -149,10 +153,10 @@ const HomePage = ({
 			});
 
 			const data = await response.json();
-			console.log(data);
 			const events = data['events'];
 			if (events) {
 				for (let i = 0; i < events.length; i++) {
+					poolSize += ethers.toBigInt(events[i]['amount']) * ticketPrice;				
 					participants.push({
 						id: `w${i}`,
 						address: events[i]?.account,
@@ -163,6 +167,7 @@ const HomePage = ({
 			}
 
 			setParticipants(participants);
+			setPoolAmount(ethers.formatUnits(poolSize));
 		} catch(error) {
 			console.log(error);
 		}
@@ -207,7 +212,8 @@ const HomePage = ({
 
 	useEffect(() => {
 		getAllTimeReward();
-		getCurrentPool();
+		// getCurrentPool();
+		getTicketPrice();
 		getHistoricalWinners();
 		getCurrentParticipants();
     }, []);

@@ -14,7 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useState } from "react";
 import { TextField, Box } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
-
+import { ethers } from "ethers";
 
 interface EntryDialogProps {
   isOpen?: boolean;
@@ -22,6 +22,7 @@ interface EntryDialogProps {
   onConfirm?: () => void;
   isProcessing?: boolean;
   error?: string;
+  ethersToSpend?:string;
 }
 
 interface EntrySectionProps {
@@ -31,7 +32,6 @@ interface EntrySectionProps {
   error?: string;
   onEntrySubmit?: () => void;
 }
-
 
 const QuantitySelector = ({ quantity, setQuantity, initialQuantity = 1, minQuantity = 1, maxQuantity = 100 }) => {
   const handleDecrement = () => {
@@ -45,7 +45,7 @@ const QuantitySelector = ({ quantity, setQuantity, initialQuantity = 1, minQuant
   return (
     <Box display="flex" alignItems="center">
       <Button
-        variant="contained"
+        variant="default"
         color="primary"
         onClick={handleDecrement}
         disabled={quantity <= minQuantity}
@@ -67,7 +67,7 @@ const QuantitySelector = ({ quantity, setQuantity, initialQuantity = 1, minQuant
         }}
       />
       <Button
-        variant="contained"
+        variant="default"
         color="primary"
         onClick={handleIncrement}
         disabled={quantity >= maxQuantity}
@@ -85,6 +85,7 @@ const EntryDialog = ({
   onConfirm = () => {},
   isProcessing = false,
   error = "",
+  ethersToSpend
 }: EntryDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -92,7 +93,7 @@ const EntryDialog = ({
         <DialogHeader>
           <DialogTitle>Confirm Lottery Entry</DialogTitle>
           <DialogDescription>
-            You are about to enter the lottery. This action cannot be undone.
+            You are about to enter the lottery and gonna to spend about {ethersToSpend} ETH. This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
 
@@ -132,6 +133,58 @@ const EntrySection = ({
 }: EntrySectionProps) => {
   const [showDialog, setShowDialog] = React.useState(false);
   const [quantity, setQuantity] = React.useState(1);
+  const [ethersToSpend, setEthersToSpend] = React.useState("");
+
+  /*
+  const buyTickets = async() => {
+    if (!localStorageWalletConnectHandler()) {
+        setModalContent('Connect your wallet to buy tickets');
+        openModal();
+        return;
+    }
+
+    const input = document.getElementById("input-lottery");
+    let ticketNumber: number = 0;
+    if (input) {
+        const inputValue = input.value;
+        if (inputValue === "") {
+            ticketNumber = 1;
+        } else {
+            ticketNumber = Number(inputValue);
+        }
+    }
+
+    const txParams = {
+        value: ticketPriceWei * ethers.toBigInt(ticketNumber),
+    };
+
+    const signer = await browserProvider.getSigner();
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+    const txResult = document.getElementById('tx-result');
+    try {
+        setLoading(true);
+        const tx = await contract.bid(ethers.toBigInt(ticketNumber), txParams);
+        await tx.wait();
+
+        setLoading(false);
+        if (txResult) {
+            txResult.innerHTML = '✅ Tx completed';
+            setTimeout(() => { txResult.innerHTML = ''; }, 2000)
+        }
+            
+        getTicketsByUser();
+    } catch (error) {
+        if (txResult) {
+            txResult.innerHTML = '❌ Tx rejected';
+            setTimeout(() => { txResult.innerHTML = ''; }, 2000)
+        }
+
+        console.log(error);
+    } finally {
+        setLoading(false);
+    }
+  }
+  */
 
   const handleConfirm = () => {
     onEntrySubmit();
@@ -153,7 +206,11 @@ const EntrySection = ({
       <Button
         size="lg"
         className="w-48"
-        onClick={() => setShowDialog(true)}
+        onClick={() => {
+          const ethersToSpend = ethers.formatUnits(ethers.toBigInt(quantity) * ethers.parseEther(ticketPrice.split(" ")[0]));
+          setEthersToSpend(ethersToSpend);
+          setShowDialog(true);      
+        }}
         disabled={isProcessing}
       >
         Enter Lottery
@@ -166,6 +223,7 @@ const EntrySection = ({
         onConfirm={handleConfirm}
         isProcessing={isProcessing}
         error={error}
+        ethersToSpend={ethersToSpend}
       />
     </Card>
   );

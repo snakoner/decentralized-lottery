@@ -1,5 +1,3 @@
-import { network } from "hardhat";
-
 export const ALCHEMY_RPC_URL = 'https://eth-sepolia.g.alchemy.com/v2/UtjFRzFoEQd533NSskUCCCKEpW7z93t2';
 export const CONTRACT_ADDRESS = '0x87Ec2437F2A3451385dbC31FdcfE40a1B1814E7F';
 export const CONTRACT_ABI = [
