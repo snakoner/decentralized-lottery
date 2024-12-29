@@ -45,18 +45,15 @@ export default function Header() {
 			});
 
 			if (accounts.length === 0) {
+				setConnected(false);
 				localStorage.setItem('walletConnected', 'false');
 				return;
 			}
 
 			setAccount(accounts[0]);
 			setConnected(true);
-			walletAddressSet(accounts[0]);
 			localStorage.setItem('walletConnected', 'true');
-			const walletConnectButton = document.getElementById('wallet-connect-button');
-			if (walletConnectButton) {
-				walletConnectButton.onclick = disconnectWallet;
-			}
+			connectButtonSet(slicedWalletAddress(accounts[0]));
 
 			const remoteProvider = new ethers.JsonRpcProvider(ALCHEMY_RPC_URL);
 			const provider = new ethers.BrowserProvider(window.ethereum);
@@ -78,46 +75,32 @@ export default function Header() {
 	}
 
 	const connectButtonSet = (data: string) => {
-		const element = document.getElementById('wallet-connect-button');
+		const element = document.getElementById('wallet-connect-button-text');
 		if (element !== undefined) {
-			element.innerHTML = data;
+			element.innerText = data;
 		}
 	}
 
-	const walletAddressSet = (acc: string) => {
-		const slicedWalletAddress = () => {
-			if (!account) {
-				return "";
-			}
-	
-			return acc.slice(0, 6) + "..." + acc.slice(-4);
-		};
-
-		connectButtonSet(slicedWalletAddress());
-	}
+	const slicedWalletAddress = (acc: string) => {
+		return acc.slice(0, 6) + "..." + acc.slice(-4);
+	};
 
 	const disconnectWallet = () => {
-		console.log("disconnectWallet");
         setConnected(false);
         localStorage.setItem('walletConnected', 'false');
         setAccount(null);
         setWalletBalance(null);
         setNetwork(null);
 		connectButtonSet("Connect wallet");
-		const walletConnectButton = document.getElementById('wallet-connect-button');
-		if (walletConnectButton) {
-			walletConnectButton.onclick = connectWallet;
-		}
-
     }
 
 	useEffect(() => {
-		console.log('use effect');
         const walletConnected = localStorageWalletConnectHandler();
+		setConnected(walletConnected);
 		if (walletConnected) {
             connectWallet();
         }
-    }, [account]);
+    }, []);
 
 	return (
 		<header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -126,13 +109,12 @@ export default function Header() {
 			<nav className="flex items-center space-x-4">
 			<ThemeToggle />
 			<Button
-				onClick={connectWallet}
-				id="wallet-connect-button"
+				onClick={connected ? disconnectWallet: connectWallet}
 				variant="outline"
 				className="gap-2 hover:scale-105 transition-all hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600 dark:hover:bg-purple-900 dark:hover:border-purple-700 dark:hover:text-purple-400"
 			>
 				<Wallet className="h-4 w-4" />
-				Connect Wallet
+				<div id='wallet-connect-button-text'>Connect wallet</div>
 			</Button>
 			</nav>
 		</div>
