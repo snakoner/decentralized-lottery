@@ -22,6 +22,9 @@ export default defineConfig({
     }),
     tempo(),
   ],
+  server: {
+    host: true,
+  },
   resolve: {
     preserveSymlinks: true,
     alias: {
