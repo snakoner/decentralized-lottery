@@ -28,9 +28,9 @@ const LotteryStatus = ({
         <div className="flex-1 flex flex-col items-center justify-center border-r border-gray-200 h-full">
           <div className="flex items-center gap-3 mb-4">
             <Coins className="w-8 h-8 text-primary" />
-            <h2 className="text-2xl font-bold">Current Pool</h2>
+            <h2 className="text-2xl font-bold">All time reward</h2>
           </div>
-          <div className="text-4xl font-bold text-primary">{poolAmount}</div>
+          <div className="text-4xl font-bold text-primary">{poolAmount} ETH</div>
         </div>
 
         <div className="flex-1 flex flex-col items-center justify-center h-full">

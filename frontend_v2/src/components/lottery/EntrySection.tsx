@@ -22,7 +22,7 @@ interface EntryDialogProps {
 
 interface EntrySectionProps {
   poolAmount?: string;
-  entryFee?: string;
+  ticketPrice?: string;
   isProcessing?: boolean;
   error?: string;
   onEntrySubmit?: () => void;
@@ -74,7 +74,7 @@ const EntryDialog = ({
 
 const EntrySection = ({
   poolAmount = "100 ETH",
-  entryFee = "0.1 ETH",
+  ticketPrice = "0.1 ETH",
   isProcessing = false,
   error = "",
   onEntrySubmit = () => {},
@@ -91,8 +91,8 @@ const EntrySection = ({
   return (
     <Card className="w-[1200px] h-[300px] p-8 bg-white dark:bg-gray-800 flex flex-col items-center justify-center space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-3xl font-bold">Current Pool: {poolAmount}</h2>
-        <p className="text-gray-500">Entry Fee: {entryFee}</p>
+        <h2 className="text-3xl font-bold">Current Pool: {poolAmount} ETH</h2>
+        <p className="text-gray-500">Ticket price: {ticketPrice} ETH</p>
       </div>
 
       <Button
