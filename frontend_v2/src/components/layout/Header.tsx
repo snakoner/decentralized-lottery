@@ -20,9 +20,9 @@ const convertSupportedChains = (): Map<bigint, ethers.Network> => {
     return map;
 }
 
-export default function Header() {
+export default function Header({account: string, setAccount}) {
 	const [walletError, setWalletError] = useState<string|null>(null);
-	const [account, setAccount] = useState<string|null>(null);
+	// const [account, setAccount] = useState<string|null>(null);
 	const [network, setNetwork] = useState<ethers.Network|null>(null);
     const [walletBalance, setWalletBalance] = useState<string|null>(null);
     const [connected, setConnected] = useState<boolean>(false);

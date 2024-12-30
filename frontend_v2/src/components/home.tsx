@@ -7,7 +7,7 @@ import Header from "./layout/Header";
 import Footer from "./layout/Footer";
 import { useEffect, useState } from "react";
 import { ethers } from "ethers"; 
-import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS, CONTRACT_ABI } from "./constants";
+import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS, CONTRACT_ABI, localStorageWalletConnectHandler } from "./constants";
 
 interface TimeRemaining {
     hours: number;
@@ -32,11 +32,9 @@ interface Participant {
 };
 
 function convertUnixTimestampToDate(timestamp: number): string {
-	// Convert the Unix timestamp to milliseconds
 	const date = new Date(timestamp * 1000);
   
-	// Format the date as a human-readable string
-	// Example format: 'YYYY-MM-DD HH:mm:ss'
+	// Example format: 'YYYY-MM-DD HH:mm'
 	const year = date.getFullYear();
 	const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
 	const day = String(date.getDate()).padStart(2, '0');
@@ -47,7 +45,6 @@ function convertUnixTimestampToDate(timestamp: number): string {
   }
 
 const HomePage = ({
-	// poolAmount = "100 ETH",
 	entryFee = "0.1 ETH",
 	isProcessing = false,
 	error = "",
@@ -55,16 +52,29 @@ const HomePage = ({
 }: HomePageProps) => {
 
 	const [allTimeReward, setAllTimeReward] = useState<string|null>("0");
+	const [currentRound, setCurrentRound] = useState<number>(0);
 	const [timeRemaining, setTimeRemaining] = useState<TimeRemaining>();
 	const [ticketPrice, setTicketPrice] = useState<string|null>("0");
+	const [ticketsPerAccount, setTicketsPerAccount] = useState<number>(0);
 	const [secondsTimeRemaining, setSecondsTimeRemaining] = useState<number>(0);
 	const [poolAmount, setPoolAmount] = useState<string|null>("0.0");
 	const [winners, setWinners] = useState<Participant[]|null>();
 	const [participants, setParticipants] = useState<Participant[]|null>();
+	const [account, setAccount] = useState<string|null>();
 
-    const browserProvider = new ethers.BrowserProvider(window.ethereum);
+    // const browserProvider = new ethers.BrowserProvider(window.ethereum);
     const providerRpc = new ethers.JsonRpcProvider(ALCHEMY_RPC_URL);
     const contractRpc = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, providerRpc);
+
+	const getTimeRemaining = async() => {
+		try {
+            const num = Number(await contractRpc.getTimeLeft());
+			setSecondsTimeRemaining(num);
+            return num;    
+        } catch (error) {
+			throw error;
+        }
+	}
 
 	const getAllTimeReward = async() => {
 		try {
@@ -76,7 +86,6 @@ const HomePage = ({
 			});
 			
 			const data = await response.json();
-			console.log("all time reward: ", data['reward']);
 			setAllTimeReward(data['reward'].slice(0, 7));
 		} catch(error) {
 			console.log(error);
@@ -85,8 +94,9 @@ const HomePage = ({
 
 	const getCurrentRound = async() => {
 		try {
-            const num: bigint = await contractRpc.round();
-            return Number(num);    
+            const num = Number(await contractRpc.round());
+			setCurrentRound(num);
+			return num;    
         } catch (error) {
 			throw error;
         }
@@ -130,7 +140,6 @@ const HomePage = ({
 				}
 			}
 
-			setPoolAmount(ethers.formatUnits(poolSize));
 			setWinners(pastWinners);
 		} catch(error) {
 			console.log(error);
@@ -143,6 +152,7 @@ const HomePage = ({
 		try {
 			let round = await getCurrentRound();
 			let poolSize = ethers.toBigInt(0);
+			let ticketsPerAcc: number = 0;
 
 			const ticketPrice: bigint = await contractRpc.ticketPrice();
 			const response = await fetch(`http://localhost:8000/round/${round}`, {
@@ -154,8 +164,26 @@ const HomePage = ({
 
 			const data = await response.json();
 			const events = data['events'];
+			let _account: string;
+			if (!account) {
+				if (localStorageWalletConnectHandler()) {
+					const accounts = await window.ethereum.request({
+						method: "eth_requestAccounts",
+					});
+
+					if (accounts.length === 0) {
+						localStorage.setItem('walletConnected', 'false');
+					}
+					
+					_account = accounts[0];
+				}
+			}
+
 			if (events) {
 				for (let i = 0; i < events.length; i++) {
+					if (_account && events[i].account.toUpperCase() === _account.toUpperCase()) {
+						ticketsPerAcc += events[i].amount;
+					}
 					poolSize += ethers.toBigInt(events[i]['amount']) * ticketPrice;				
 					participants.push({
 						id: `w${i}`,
@@ -165,7 +193,9 @@ const HomePage = ({
 					});				
 				}
 			}
-
+			console.log('poolSize:', ethers.formatUnits(poolSize));
+			console.log('tickets: ', ticketsPerAcc);
+			setTicketsPerAccount(ticketsPerAcc);
 			setParticipants(participants);
 			setPoolAmount(ethers.formatUnits(poolSize));
 		} catch(error) {
@@ -173,54 +203,22 @@ const HomePage = ({
 		}
 	}
 
-	const getCurrentPool = async() => {
-		try {
-			const currentRound = await getCurrentRound();
-			const ticketPrice = await getTicketPrice();
-		
-			const response = await fetch(`http://localhost:8000/round/${currentRound}`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},     
-			});
-			
-			const data = await response.json();
-			if (data['events']) {
-				let poolSize = ethers.toBigInt(0);
-				for (const event of data['events'])
-					poolSize += ethers.toBigInt(event['amount']) * ticketPrice;				
-
-				setPoolAmount(ethers.formatUnits(poolSize));
-			}
-		} catch(error) {
-			console.log(error);
-		}
-	}
-
-	const formatTime = (seconds: number): TimeRemaining => {
-		const hours = Math.floor(seconds / 3600);
-		const minutes = Math.floor((seconds % 3600) / 60);
-		const secs = seconds % 60;
-		
-		return {
-			hours: hours,
-			minutes: minutes,
-			seconds: secs,
-		};
-	};
-
 	useEffect(() => {
 		getAllTimeReward();
-		// getCurrentPool();
+		getTimeRemaining();
 		getTicketPrice();
 		getHistoricalWinners();
 		getCurrentParticipants();
+
+		const timer = setInterval(() => {
+            setSecondsTimeRemaining((prevTime) => (prevTime > 0 ? prevTime - 1 : 0));
+        }, 1000);
+        return () => clearInterval(timer);
     }, []);
 	
 	return (
 		<div className="min-h-screen flex flex-col bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 transition-colors duration-300">
-		<Header />
+		<Header account={account} setAccount={setAccount}/>
 		<main className="flex-1 py-8 px-4 animate-fade-in">
 			<div className="max-w-[1200px] mx-auto space-y-12">
 			<div className="text-center space-y-4 mb-8">
@@ -238,8 +236,9 @@ const HomePage = ({
 
 			<div className="transform hover:scale-[1.01] transition-transform">
 				<LotteryStatus
+				currentRound={currentRound}
 				poolAmount={allTimeReward}
-				timeRemaining={timeRemaining}
+				secondsTimeRemaining={secondsTimeRemaining}
 				/>
 			</div>
 
@@ -247,6 +246,7 @@ const HomePage = ({
 				<EntrySection
 				poolAmount={poolAmount}
 				ticketPrice={ticketPrice}
+				ticketsPerAccount={ticketsPerAccount}
 				isProcessing={isProcessing}
 				error={error}
 				onEntrySubmit={onEntrySubmit}

@@ -15,6 +15,7 @@ import { useState } from "react";
 import { TextField, Box } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 import { ethers } from "ethers";
+import { localStorageWalletConnectHandler, CONTRACT_ADDRESS, CONTRACT_ABI } from "../constants";
 
 interface EntryDialogProps {
   isOpen?: boolean;
@@ -28,6 +29,7 @@ interface EntryDialogProps {
 interface EntrySectionProps {
   poolAmount?: string;
   ticketPrice?: string;
+  ticketsPerAccount?: number;
   isProcessing?: boolean;
   error?: string;
   onEntrySubmit?: () => void;
@@ -91,9 +93,11 @@ const EntryDialog = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Confirm Lottery Entry</DialogTitle>
+          <DialogTitle>
+			{localStorageWalletConnectHandler() ? 'Confirm Lottery Entry' : 'Connect your wallet to buy tickets'}
+			</DialogTitle>
           <DialogDescription>
-            You are about to enter the lottery and gonna to spend about {ethersToSpend} ETH. This action cannot be undone.
+			{localStorageWalletConnectHandler() ? `You are about to enter the lottery and gonna to spend about ${ethersToSpend} ETH. This action cannot be undone.` : ''}
           </DialogDescription>
         </DialogHeader>
 
@@ -125,71 +129,51 @@ const EntryDialog = ({
 };
 
 const EntrySection = ({
-  poolAmount = "100 ETH",
-  ticketPrice = "0.1 ETH",
-  isProcessing = false,
-  error = "",
-  onEntrySubmit = () => {},
-}: EntrySectionProps) => {
-  const [showDialog, setShowDialog] = React.useState(false);
-  const [quantity, setQuantity] = React.useState(1);
-  const [ethersToSpend, setEthersToSpend] = React.useState("");
+	poolAmount = "100 ETH",
+	ticketPrice = "0.1 ETH",
+	ticketsPerAccount = 0,
+	isProcessing = false,
+	error = "",
+	onEntrySubmit = () => {},
+	}: EntrySectionProps) => {
+	const [showDialog, setShowDialog] = React.useState(false);
+	const [quantity, setQuantity] = React.useState(1);
+	const [ethersToSpend, setEthersToSpend] = React.useState("");
 
-  /*
-  const buyTickets = async() => {
-    if (!localStorageWalletConnectHandler()) {
-        setModalContent('Connect your wallet to buy tickets');
-        openModal();
-        return;
-    }
+	const buyTickets = async() => {
+		if (!localStorageWalletConnectHandler()) {
+			alert("Connect your wallet");
+			return;
+		}
 
-    const input = document.getElementById("input-lottery");
-    let ticketNumber: number = 0;
-    if (input) {
-        const inputValue = input.value;
-        if (inputValue === "") {
-            ticketNumber = 1;
-        } else {
-            ticketNumber = Number(inputValue);
-        }
-    }
+		const txParams = {
+			value: ethers.parseEther(ethersToSpend),
+		};
 
-    const txParams = {
-        value: ticketPriceWei * ethers.toBigInt(ticketNumber),
-    };
 
-    const signer = await browserProvider.getSigner();
-    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-    const txResult = document.getElementById('tx-result');
-    try {
-        setLoading(true);
-        const tx = await contract.bid(ethers.toBigInt(ticketNumber), txParams);
-        await tx.wait();
+		const browserProvider = new ethers.BrowserProvider(window.ethereum);
+		const signer = await browserProvider.getSigner();
+		const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+		const txResult = document.getElementById('tx-result');
+		try {
+			// setLoading(true);
+			const tx = await contract.bid(ethers.toBigInt(quantity), txParams);
+			await tx.wait();
+			alert('✅ Transaction completed');
+		} catch (error) {
+			alert("❌ Transaction reverted!");
 
-        setLoading(false);
-        if (txResult) {
-            txResult.innerHTML = '✅ Tx completed';
-            setTimeout(() => { txResult.innerHTML = ''; }, 2000)
-        }
-            
-        getTicketsByUser();
-    } catch (error) {
-        if (txResult) {
-            txResult.innerHTML = '❌ Tx rejected';
-            setTimeout(() => { txResult.innerHTML = ''; }, 2000)
-        }
-
-        console.log(error);
-    } finally {
-        setLoading(false);
-    }
-  }
-  */
+			console.log(error);
+		} finally {
+			// setLoading(false);
+		}
+	}
 
   const handleConfirm = () => {
     onEntrySubmit();
     // send tx
-    if (!error) {
+	buyTickets();
+	if (!error) {
       setShowDialog(false);
     }
   };
@@ -199,6 +183,7 @@ const EntrySection = ({
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-bold">Current Pool: {poolAmount} ETH</h2>
         <p className="text-gray-500">Ticket price: {ticketPrice} ETH</p>
+        <p className="text-gray-500">Your tickets: {ticketsPerAccount}</p>
       </div>
 
       <QuantitySelector quantity={quantity} setQuantity={setQuantity}/>

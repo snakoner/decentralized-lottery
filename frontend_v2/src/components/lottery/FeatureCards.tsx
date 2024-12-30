@@ -15,7 +15,7 @@ const features: FeatureCard[] = [
       "Enter the lottery with ETH in just a few clicks. No complicated setup required.",
     icon: <Coins className="h-6 w-6 text-purple-500 dark:text-purple-400" />,
     imageUrl:
-      "https://images.unsplash.com/photo-1621504450181-5d356f61d307?q=80&w=687&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1032&auto=format&fit=crop",
   },
   {
     title: "Fair & Transparent",
@@ -23,7 +23,7 @@ const features: FeatureCard[] = [
       "Smart contract ensures completely fair and transparent winner selection.",
     icon: <Trophy className="h-6 w-6 text-purple-500 dark:text-purple-400" />,
     imageUrl:
-      "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1032&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1621504450181-5d356f61d307?q=80&w=687&auto=format&fit=crop",
   },
   {
     title: "Regular Draws",
