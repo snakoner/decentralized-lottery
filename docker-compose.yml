@@ -4,11 +4,17 @@ services:
   backend:
     build: ./backend
     command: bash -c "
-      ./app"
+      ./wait-for-postgres.sh db && ./app"
     ports:
       - 8000:8000
+    depends_on:
+      - db
+    environment:
+      - DB_PASSWORD=Anacondaz1
     env_file:
       - .env
+    volumes:
+      - ./log:/build/log
 
   frontend:
     build: ./frontend_v2
@@ -20,3 +26,16 @@ services:
       - VITE_PORT=5173
     env_file:
       - .env
+
+  db:
+    restart: always
+    image: postgres:16
+    volumes:
+      - ./schema/postgres:/docker-entrypoint-initdb.d
+      # - ./.database/postgres/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=dbo
+      - POSTGRES_PASSWORD=Anacondaz1
+    ports:
+      - 5432:5432

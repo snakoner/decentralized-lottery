@@ -6,6 +6,10 @@ RUN mkdir /build
 WORKDIR /build
 COPY . .
 
+RUN apt-get update
+RUN apt-get -y install postgresql-client
+RUN chmod a+x wait-for-postgres.sh
+
 RUN go mod download
 RUN go build -o app ./cmd/app/*
 

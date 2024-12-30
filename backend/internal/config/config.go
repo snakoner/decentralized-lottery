@@ -30,6 +30,14 @@ type Config struct {
 		Evm      string
 		Provider string
 	}
+	DB struct {
+		Host     string `json:"host"`
+		Port     string `json:"port"`
+		User     string `json:"user"`
+		DbName   string `json:"db-name"`
+		SslMode  string `json:"ssl-mode"`
+		Password string
+	} `json:"db"`
 }
 
 func New(configPath string) (*Config, error) {

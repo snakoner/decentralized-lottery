@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/handlers"
@@ -11,6 +12,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/snakoner/lottery/internal/config"
 	"github.com/snakoner/lottery/internal/eth"
+	"github.com/snakoner/lottery/internal/store"
+	"github.com/snakoner/lottery/internal/store/sqlstore"
 )
 
 type App struct {
@@ -19,6 +22,21 @@ type App struct {
 	router *mux.Router
 	server *http.Server
 	ethSrv *eth.EthereumServer
+	store  store.Store
+}
+
+func postgresURLString(config *config.Config) string {
+	url := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		config.DB.Host,
+		config.DB.Port,
+		config.DB.User,
+		os.Getenv("DB_PASSWORD"),
+		config.DB.DbName,
+		config.DB.SslMode)
+
+	fmt.Println("url:", url)
+
+	return url
 }
 
 func New(config *config.Config, logger *logrus.Logger) (*App, error) {
@@ -33,6 +51,7 @@ func New(config *config.Config, logger *logrus.Logger) (*App, error) {
 		router: mux.NewRouter(),
 		server: &http.Server{},
 		ethSrv: ethSrv,
+		store:  sqlstore.New(postgresURLString(config)),
 	}
 
 	app.setRoutes()
@@ -51,6 +70,7 @@ func (a *App) setRoutes() {
 	a.router.HandleFunc("/round/{number}", a.ethSrv.RoundHandler).Methods("GET")
 	a.router.HandleFunc("/winner/{number}", a.ethSrv.WinnerHandler).Methods("GET")
 	a.router.HandleFunc("/all-time-reward", a.ethSrv.AllTimeRewardHander).Methods("GET")
+	a.router.HandleFunc("/ws", chatHandler)
 }
 
 func (a *App) Run(ctx context.Context) error {

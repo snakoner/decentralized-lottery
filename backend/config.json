@@ -15,5 +15,12 @@
     "contract": {
         "name": "DecentralizedLotteryV2",
         "address": "0x87Ec2437F2A3451385dbC31FdcfE40a1B1814E7F"
+    },
+    "db": {
+        "host": "0.0.0.0",
+        "user": "postgres",
+        "db-name": "dbo",
+        "port": "5432",
+        "ssl-mode": "disable"
     }
 }

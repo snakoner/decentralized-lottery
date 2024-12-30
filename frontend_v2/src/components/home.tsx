@@ -5,6 +5,7 @@ import HistoryGrid from "./lottery/HistoryGrid";
 import FeatureCards from "./lottery/FeatureCards";
 import Header from "./layout/Header";
 import Footer from "./layout/Footer";
+import ChatRoom from "./lottery/Chat";
 import { useEffect, useState } from "react";
 import { ethers } from "ethers"; 
 import { ALCHEMY_RPC_URL, CONTRACT_ADDRESS, CONTRACT_ABI, localStorageWalletConnectHandler } from "./constants";
@@ -257,6 +258,7 @@ const HomePage = ({
 				<HistoryGrid winners={winners} participants={participants}/>
 			</div>
 			</div>
+			<ChatRoom></ChatRoom>
 		</main>
 		<Footer />
 		</div>
