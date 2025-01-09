@@ -1,5 +1,5 @@
 export const ALCHEMY_RPC_URL = 'https://eth-sepolia.g.alchemy.com/v2/UtjFRzFoEQd533NSskUCCCKEpW7z93t2';
-export const CONTRACT_ADDRESS = '0x87Ec2437F2A3451385dbC31FdcfE40a1B1814E7F';
+export const CONTRACT_ADDRESS = '0xB367864e7Ae6d8C4Ba359Cd329b0F381650A0c1b';
 export const CONTRACT_ABI = [
     "event Bid(address indexed account, uint amount, uint timestamp, uint indexed round)",
     "event WinnerSelected(address indexed account, uint amount, uint indexed round)",

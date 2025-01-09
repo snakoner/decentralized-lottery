@@ -1,7 +1,7 @@
 .PHONY: build
 .default := build
 
-CONTRACT_NAME = DecentralizedLotteryV2
+CONTRACT_NAME = DecentralizedLottery
 
 build:
 	docker-compose build

@@ -26,7 +26,7 @@ func (e *EthereumServer) SubscribeBidEvent(ctx context.Context) {
 			e.logger.Error(err)
 		case vLog := <-ch:
 			e.newEvents = append(e.newEvents, vLog)
-			e.logger.Info(fmt.Sprintf("[Bid event]: account: %v, amount: %v, ts: %v, round: %v ", vLog.Account, vLog.Amount, vLog.Timestamp, vLog.Round))
+			e.logger.Info(fmt.Sprintf("[Bid event]: account: %v, amount: %v, round: %v ", vLog.Account, vLog.Amount, vLog.Round))
 			// make write to db
 		}
 	}

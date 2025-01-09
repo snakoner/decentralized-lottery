@@ -60,12 +60,19 @@ func (e *EthereumServer) RoundHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
+		block, err := e.http.cli.BlockByHash(context.Background(), logs.Event.Raw.BlockHash)
+		if err != nil {
+			log.Fatalf("Failed to retrieve block: %v", err)
+		}
+
+		// Extract the timestamp
+		timestamp := block.Time()
 		event := logs.Event
 		if round == event.Round.Int64() {
 			bidEvents.Events = append(bidEvents.Events, &models.BidEvent{
 				Account:   event.Account.Hex(),
 				Amount:    event.Amount.Int64(),
-				Timestamp: event.Timestamp.Int64(),
+				Timestamp: int64(timestamp),
 				Round:     event.Round.Int64(),
 			})
 		}
