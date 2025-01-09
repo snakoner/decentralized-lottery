@@ -106,19 +106,19 @@ describe("DecentralizedLottery contract", function() {
         ).to.be.eq(users.length);
 
         // check events
-        const eventAbi = [
-			"event Bid(address indexed account, uint amount, uint indexed round)",
-		];
+		const eventAbi = ["event Bid(address indexed account, uint amount, uint indexed round)",];
 		const eventContract = new ethers.Contract(await contract.getAddress(), eventAbi, ethers.provider);
 		const events = await eventContract.queryFilter(eventContract.filters.Bid(), 0, "latest");
 
         console.log(events.length);
 		events.forEach((event) => {
-			const e = ({
-				account: event.args?.account,
-				amount: event.args?.amount,
-			});
-			expect(e.amount).to.be.eq(users[getIndexOfAccount(users, e.account)].ticketsNumber);
+            const e = ({
+                account: event.args?.account,
+                amount: event.args?.amount,
+            }
+        );
+        
+        expect(e.amount).to.be.eq(users[getIndexOfAccount(users, e.account)].ticketsNumber);
 		});
     });
 
@@ -150,9 +150,7 @@ describe("DecentralizedLottery contract", function() {
         expect(await contract.round()).to.be.eq(1);
 
         // get event
-        const eventAbi = [
-			"event WinnerSelected(address indexed account, uint amount, uint indexed round)",
-		];
+		const eventAbi = ["event WinnerSelected(address indexed account, uint amount, uint indexed round)",];
 		const eventContract = new ethers.Contract(await contract.getAddress(), eventAbi, ethers.provider);
 		const events = await eventContract.queryFilter(eventContract.filters.WinnerSelected(), 0, "latest");
         expect(events.length).to.be.eq(1);
