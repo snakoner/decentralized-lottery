@@ -2,30 +2,39 @@
 pragma solidity ^0.8.28;
 
 interface IDecentralizedLottery {
+    error NotEnoughtEther();
+    
+    error LotteryAlreadyFinished();
+
+    error LotteryNotFinished();
+
+    error InvalidRoundNumber();
+
+    error HaveParticipants();
+
+    error NotEnoughParticipants();
+
+    error NothingToWithdraw();
+
     /**
      * @dev Emitted when account buys one ticket
      */
-    event Bid(address indexed account, uint amount, uint indexed round);
-
-    /**
-    * @dev Emitted when account deposits cash
-    */
-    event Deposit(address indexed user, uint amount);
+    event Bid(address indexed account, uint256 amount, uint64 indexed round);
 
     /**
      * @dev Emitted when owner picked winner
      */
-    event WinnerSelected(address indexed account, uint amount, uint indexed round);
+    event WinnerSelected(address indexed account, uint256 amount, uint64 indexed round);
 
     /**
      * @dev Emitted when owner picked winner
      */
-    event Withdraw(address indexed account, uint amount);
+    event Withdraw(address indexed account, uint256 amount);
 
     /**
      * @dev Writes bid to mapping
      */
-    function bid(uint amount) external payable;
+    function bid(uint256 amount) external payable;
 
     /**
      * @dev Function to choose winner
@@ -35,11 +44,11 @@ interface IDecentralizedLottery {
     /**
      * @dev Function to withdraw reward for winner and owner to withdraw commission
      */
-    function withdraw(uint amount) external;
+    function withdraw(uint256 amount) external;
 
     /**
      * @dev Function to restart lottery if amount of participants is zero
      */
-    function restartEmpty(uint newDuration) external;
+    function restartEmpty(uint64 newDuration) external;
 
 }

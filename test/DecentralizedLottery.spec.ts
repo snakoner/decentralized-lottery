@@ -106,7 +106,7 @@ describe("DecentralizedLottery contract", function() {
 		).to.be.eq(users.length);
 
 		// check events
-		const eventAbi = ["event Bid(address indexed account, uint amount, uint indexed round)",];
+		const eventAbi = ["event Bid(address indexed account, uint amount, uint64 indexed round)",];
 		const eventContract = new ethers.Contract(await contract.getAddress(), eventAbi, ethers.provider);
 		const events = await eventContract.queryFilter(eventContract.filters.Bid(), 0, "latest");
 
@@ -150,7 +150,7 @@ describe("DecentralizedLottery contract", function() {
 		expect(await contract.round()).to.be.eq(1);
 
 		// get event
-		const eventAbi = ["event WinnerSelected(address indexed account, uint amount, uint indexed round)",];
+		const eventAbi = ["event WinnerSelected(address indexed account, uint256 amount, uint64 indexed round)",];
 		const eventContract = new ethers.Contract(await contract.getAddress(), eventAbi, ethers.provider);
 		const events = await eventContract.queryFilter(eventContract.filters.WinnerSelected(), 0, "latest");
 		expect(events.length).to.be.eq(1);
@@ -173,7 +173,6 @@ describe("DecentralizedLottery contract", function() {
 
 	it ("should restart", async function() {
 		const {contract, users} = await loadFixture(deploy);
-
 
 		await ethers.provider.send("evm_increaseTime", [60 * 60 * 26]);
 		await ethers.provider.send("evm_mine")

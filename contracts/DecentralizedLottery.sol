@@ -17,16 +17,12 @@ contract DecentralizedLottery is
     OwnableUpgradeable, 
     IDecentralizedLottery 
 {
-    // Constants
-    uint256 constant MAX_OWNER_FEE = 2; // Maximum allowable owner fee in percentage.
-    uint256 constant MIN_DURATION = 1 days; // Minimum duration for a lottery round.
-
     // State variables
-    uint256 public endTime; // Timestamp when the current lottery round ends.
-    uint256 public duration; // Duration of a single lottery round.
-    uint256 public round; // Current lottery round number.
+    uint64 public endTime; // Timestamp when the current lottery round ends.
+    uint64 public duration; // Duration of a single lottery round.
+    uint64 public round; // Current lottery round number.
+    uint64 public ownerFee; // Fee percentage taken by the owner.
     uint256 public ticketPrice; // Price of a single lottery ticket.
-    uint256 public ownerFee; // Fee percentage taken by the owner.
     mapping (address => uint256) public balances; // Tracks withdrawable balances of users (winner/owner).
     mapping (uint256 => mapping (address => uint256)) public weights;
     mapping (uint256 => mapping (address => bool)) public participantExist;
@@ -35,22 +31,22 @@ contract DecentralizedLottery is
 
     // Modifiers
     modifier enoughEthersSent(uint256 amount) {
-        require(msg.value >= amount * ticketPrice, "not enough ether");
+        require(msg.value == (amount * ticketPrice), NotEnoughtEther());
         _;
     }
 
     modifier lotteryNotFinished() {
-        require(block.timestamp < endTime, "lottery already finished");
+        require(block.timestamp < endTime, LotteryAlreadyFinished());
         _;
     }
 
     modifier lotteryFinished() {
-        require(block.timestamp >= endTime, "lottery not finished");
+        require(block.timestamp >= endTime, LotteryNotFinished());
         _;
     }
 
     modifier validRound(uint256 _round) {
-        require(_round <= round, "invalid round");
+        require(_round <= round, InvalidRoundNumber());
         _;
     }
 
@@ -61,20 +57,17 @@ contract DecentralizedLottery is
      * @param _ticketPrice Price of a single lottery ticket.
      */
     function initialize(
-        uint256 _ownerFee, 
-        uint256 _duration, 
+        uint64 _ownerFee, 
+        uint64 _duration, 
         uint256 _ticketPrice
     ) external initializer {
-        require(_ownerFee <= MAX_OWNER_FEE, "illegal owner fee");
-        require(_duration >= MIN_DURATION, "bad duration");
-
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
 
         ownerFee = _ownerFee;
         ticketPrice = _ticketPrice;
         duration = _duration;
-        endTime = block.timestamp + _duration;
+        endTime = uint64(block.timestamp) + _duration;
     }
 
 
@@ -83,34 +76,30 @@ contract DecentralizedLottery is
      * @param amount Number of tickets the user wants to purchase.
      */
     function bid(uint256 amount) external payable enoughEthersSent(amount) lotteryNotFinished {
-        uint256 refund = msg.value - amount * ticketPrice;
-        if (refund > 0) {
-            payable(msg.sender).transfer(refund);
-        }
-
-        if (!participantExist[round][msg.sender]) {
-            participantExist[round][msg.sender] = true;
-            participants.push(msg.sender);
+        address account = msg.sender;
+        if (!participantExist[round][account]) {
+            participantExist[round][account] = true;
+            participants.push(account);
         }
 
         totalWeight[round] += amount;
-        weights[round][msg.sender] += amount;
+        weights[round][account] += amount;
 
-        emit Bid(msg.sender, amount, round);
+        emit Bid(account, amount, round);
     }
 
     /**
      * @dev Restarts a new lottery round with a given duration if the current one is empty.
      * @param newDuration Optional new duration for the next round (defaults to current duration).
      */
-    function restartEmpty(uint256 newDuration) 
+    function restartEmpty(uint64 newDuration) 
         external 
         onlyOwner 
         lotteryFinished {
-        require(participants.length == 0, "have participants");
+        require(participants.length == 0, HaveParticipants());
 
         duration = newDuration != 0 ? newDuration : duration;
-        endTime = block.timestamp + duration;
+        endTime = uint64(block.timestamp) + duration;
     }
 
     /**
@@ -125,7 +114,7 @@ contract DecentralizedLottery is
      * @dev Selects a winner, calculates rewards, and starts a new lottery round.
      */
     function start() external onlyOwner lotteryFinished {
-        require(participants.length > 0, "not enough participants"); 
+        require(participants.length > 0, NotEnoughParticipants()); 
 
         uint256 randomValue = generateRandom() % totalWeight[round]; 
         uint256 cumulativeWeight = 0;
@@ -149,7 +138,7 @@ contract DecentralizedLottery is
         emit WinnerSelected(winner, reward, round);
 
         round++;
-        endTime = block.timestamp + duration;
+        endTime = uint64(block.timestamp) + duration;
 
         delete participants;
     }
@@ -158,15 +147,16 @@ contract DecentralizedLottery is
      * @dev Allows a user to withdraw their available balance.
      */
     function withdraw(uint256 amount) external {
-        require(balances[msg.sender] >= amount && amount > 0, "nothing to withdraw");
+        address account = msg.sender;
+        require(balances[account] >= amount && amount > 0, NothingToWithdraw());
 
         unchecked {
-            balances[msg.sender] -= amount;
+            balances[account] -= amount;
         }
 
-        payable(msg.sender).transfer(amount);
+        payable(account).transfer(amount);
 
-        emit Withdraw(msg.sender, amount);
+        emit Withdraw(account, amount);
     }
 
     /**
@@ -194,34 +184,22 @@ contract DecentralizedLottery is
      */
     function bidFromBalance(uint256 amount) external lotteryNotFinished {
         uint256 value = amount * ticketPrice;
-        require(balances[msg.sender] >= value, "insufficient balance");
+        address account = msg.sender;
+        require(balances[account] >= value, NotEnoughtEther());
         
         unchecked {
-            balances[msg.sender] -= value;
+            balances[account] -= value;
         }
 
-        if (!participantExist[round][msg.sender]) {
-            participantExist[round][msg.sender] = true;
-            participants.push(msg.sender);
+        if (!participantExist[round][account]) {
+            participantExist[round][account] = true;
+            participants.push(account);
         }
 
         totalWeight[round] += amount;
-        weights[round][msg.sender] += amount;
+        weights[round][account] += amount;
 
-        emit Bid(msg.sender, amount, round);
-    }
-
-    /**
-     * @dev Allows users to deposit ETH to balance.
-     */
-    function deposit() external payable {
-        // Check if the deposit amount is greater than 0
-        require(msg.value > 0, "deposit must be greater than 0");
-
-        // Add the deposited msg.value to the user's balance
-        balances[msg.sender] += msg.value;
-
-        emit Deposit(msg.sender, msg.value);
+        emit Bid(account, amount, round);
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
