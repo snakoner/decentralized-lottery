@@ -1,7 +1,7 @@
 import { network } from "hardhat";
 
 export const ALCHEMY_RPC_URL = 'https://eth-sepolia.g.alchemy.com/v2/UtjFRzFoEQd533NSskUCCCKEpW7z93t2';
-export const CONTRACT_ADDRESS = '0xB367864e7Ae6d8C4Ba359Cd329b0F381650A0c1b';
+export const CONTRACT_ADDRESS = '0xfC8118820706C3EF0C47Ff0d9d7C2b67fDAf23b9';
 export const CONTRACT_ABI = [
     "event Bid(address indexed account, uint amount, uint indexed round)",
     "event WinnerSelected(address indexed account, uint amount, uint indexed round)",

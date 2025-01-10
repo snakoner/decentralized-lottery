@@ -50,6 +50,11 @@ contract DecentralizedLottery is
         _;
     }
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     /**
      * @dev Contract constructor initializes lottery parameters.
      * @param _ownerFee Fee percentage taken by the owner (must not exceed MAX_OWNER_FEE).
@@ -97,8 +102,11 @@ contract DecentralizedLottery is
         onlyOwner 
         lotteryFinished {
         require(participants.length == 0, HaveParticipants());
+        uint64 _duration = newDuration != 0 ? newDuration : duration;
 
-        duration = newDuration != 0 ? newDuration : duration;
+        emit RestartLottery(duration, _duration);
+
+        duration = _duration;
         endTime = uint64(block.timestamp) + duration;
     }
 

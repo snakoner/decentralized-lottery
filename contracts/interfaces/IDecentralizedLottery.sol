@@ -31,6 +31,8 @@ interface IDecentralizedLottery {
      */
     event Withdraw(address indexed account, uint256 amount);
 
+    event RestartLottery(uint64 prevDuration, uint64 newDuration);
+
     /**
      * @dev Writes bid to mapping
      */
