@@ -45,7 +45,7 @@ contract DecentralizedLottery is
         _;
     }
 
-    modifier validRound(uint256 _round) {
+    modifier validRound(uint64 _round) {
         require(_round <= round, InvalidRoundNumber());
         _;
     }
