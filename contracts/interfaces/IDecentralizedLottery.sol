@@ -16,6 +16,8 @@ interface IDecentralizedLottery {
 
     error NothingToWithdraw();
 
+    error WithdrawalFailed();
+
     /**
      * @dev Emitted when account buys one ticket
      */

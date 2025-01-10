@@ -162,7 +162,8 @@ contract DecentralizedLottery is
             balances[account] -= amount;
         }
 
-        payable(account).transfer(amount);
+        (bool success, ) = account.call{value: amount}("");
+        require(success, WithdrawalFailed());
 
         emit Withdraw(account, amount);
     }
