@@ -31,6 +31,9 @@ interface IDecentralizedLottery {
      */
     event Withdraw(address indexed account, uint256 amount);
 
+    /**
+     * @dev Emitted when owner restarts lottery
+     */
     event RestartLottery(uint64 prevDuration, uint64 newDuration);
 
     /**
