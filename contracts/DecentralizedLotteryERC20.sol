@@ -12,7 +12,7 @@ contract DecentralizedLotteryERC20 is DecentralizedLottery {
         uint64 _ownerFee, 
         uint64 _duration, 
         uint256 _ticketPrice
-    ) public initializer {
+    ) external initializer {
         super.initialize(_ownerFee, _duration, _ticketPrice);
         token = IERC20(_token);
     }
