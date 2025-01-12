@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "./interfaces/IDecentralizedLottery.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {IDecentralizedLottery} from "./interfaces/IDecentralizedLottery.sol";
 
 /**
  * @title DecentralizedLottery
@@ -30,11 +30,6 @@ contract DecentralizedLottery is
     address[] public participants;
 
     // Modifiers
-    modifier enoughEthersSent(uint256 amount) {
-        require(msg.value == (amount * ticketPrice), NotEnoughtEther());
-        _;
-    }
-
     modifier lotteryNotFinished() {
         require(block.timestamp < endTime, LotteryAlreadyFinished());
         _;
@@ -65,7 +60,7 @@ contract DecentralizedLottery is
         uint64 _ownerFee, 
         uint64 _duration, 
         uint256 _ticketPrice
-    ) external initializer {
+    ) public initializer {
         __Ownable_init(msg.sender);
         __UUPSUpgradeable_init();
 
@@ -75,22 +70,24 @@ contract DecentralizedLottery is
         endTime = uint64(block.timestamp) + _duration;
     }
 
-
     /**
      * @dev Allows users to buy lottery tickets by sending ETH.
-     * @param amount Number of tickets the user wants to purchase.
+     * @param ticketsNum Number of tickets the user wants to purchase.
      */
-    function bid(uint256 amount) external payable enoughEthersSent(amount) lotteryNotFinished {
+    function bid(uint256 ticketsNum) public payable virtual lotteryNotFinished {
+        require(msg.value == (ticketsNum * ticketPrice), InsufficientValue());
+
         address account = msg.sender;
+
         if (!participantExist[round][account]) {
             participantExist[round][account] = true;
             participants.push(account);
         }
 
-        totalWeight[round] += amount;
-        weights[round][account] += amount;
+        totalWeight[round] += ticketsNum;
+        weights[round][account] += ticketsNum;
 
-        emit Bid(account, amount, round);
+        emit Bid(account, ticketsNum, round);
     }
 
     /**
@@ -154,9 +151,9 @@ contract DecentralizedLottery is
     /**
      * @dev Allows a user to withdraw their available balance.
      */
-    function withdraw(uint256 amount) external {
+    function withdraw(uint256 amount) public virtual {
         address account = msg.sender;
-        require(balances[account] >= amount && amount > 0, NothingToWithdraw());
+        require(amount > 0 && balances[account] >= amount, NothingToWithdraw());
 
         unchecked {
             balances[account] -= amount;
@@ -191,10 +188,10 @@ contract DecentralizedLottery is
     /**
      * @dev Allows users to buy lottery tickets by changing internal ETH balance.
      */
-    function bidFromBalance(uint256 amount) external lotteryNotFinished {
-        uint256 value = amount * ticketPrice;
+    function bidFromBalance(uint256 ticketsNum) public lotteryNotFinished {
+        uint256 value = ticketsNum * ticketPrice;
         address account = msg.sender;
-        require(balances[account] >= value, NotEnoughtEther());
+        require(balances[account] >= value, InsufficientValue());
         
         unchecked {
             balances[account] -= value;
@@ -205,10 +202,10 @@ contract DecentralizedLottery is
             participants.push(account);
         }
 
-        totalWeight[round] += amount;
-        weights[round][account] += amount;
+        totalWeight[round] += ticketsNum;
+        weights[round][account] += ticketsNum;
 
-        emit Bid(account, amount, round);
+        emit Bid(account, ticketsNum, round);
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}

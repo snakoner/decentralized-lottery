@@ -2,7 +2,6 @@
 pragma solidity ^0.8.28;
 
 interface IDecentralizedLottery {
-    error NotEnoughtEther();
     
     error LotteryAlreadyFinished();
 
@@ -17,6 +16,8 @@ interface IDecentralizedLottery {
     error NothingToWithdraw();
 
     error WithdrawalFailed();
+
+    error InsufficientValue();
 
     /**
      * @dev Emitted when account buys one ticket
