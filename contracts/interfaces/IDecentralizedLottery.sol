@@ -22,7 +22,7 @@ interface IDecentralizedLottery {
     /**
      * @dev Emitted when account buys one ticket
      */
-    event Bid(address indexed account, uint256 amount, uint64 indexed round);
+    event Bid(address indexed account, uint256 ticketsNum, uint64 indexed round);
 
     /**
      * @dev Emitted when owner picked winner
@@ -42,7 +42,7 @@ interface IDecentralizedLottery {
     /**
      * @dev Writes bid to mapping
      */
-    function bid(uint256 amount) external payable;
+    function bid(uint256 ticketsNum) external payable;
 
     /**
      * @dev Function to choose winner
