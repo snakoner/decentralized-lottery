@@ -15,6 +15,8 @@ interface IDecentralizedLottery {
 
     error NothingToWithdraw();
 
+    error BidFailed();
+
     error WithdrawalFailed();
 
     error InsufficientValue();
